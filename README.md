@@ -36,21 +36,28 @@ Here `jasonm23-markdown` is converted to `https://kpym.github.io/markdown-css/ja
 
 ### Precompiled executables
 
-You can download the executable for your platform from the [Realases](https://github.com/kpym/gm/releases).
+You can download the executable for your platform from the [Realases](https://github.com/kpym/goldmark-cli/releases).
 
 ### Compile it yourself
 
-You can use go to do this.
+#### Using Go
+
+This method will comile to executable named `goldmark-cli` and not `gm`.
 
 ```shell
-$ go get github.com/kpym/gm
+$ go get github.com/kpym/goldmark-cli
 ```
 
-Or you can comile the sources with [goreleaser](https://github.com/goreleaser/goreleaser/) for all available platforms:
+#### Using goreleaser
+
+After cloning this repo you can comile the sources with [goreleaser](https://github.com/goreleaser/goreleaser/) for all available platforms:
 
 ```shell
+git clone https://github.com/kpym/goldmark-cli.git .
 goreleaser --snapshot --skip-publish --rm-dist
 ```
+
+You will find the resulting binaries in the `dist/` subfolder.
 
 ## License
 
