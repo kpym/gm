@@ -1,4 +1,4 @@
-module github.com/kpym/gm
+module github.com/kpym/goldmark-cli
 
 go 1.15
 

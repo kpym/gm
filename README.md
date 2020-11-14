@@ -22,6 +22,7 @@ Usage: gm [options] [file.md].
 
   -s, --css string     The css file or the theme name present in github.com/kpym/markdown-css (default "github")
   -t, --title string   The page title.
+      --html string    The html htmlshell (file or string).
   -h, --help           Print this help message.
 ```
 
@@ -31,6 +32,27 @@ Usage: gm [options] [file.md].
 ```
 
 Here `jasonm23-markdown` is converted to `https://kpym.github.io/markdown-css/jasonm23-markdown.min.css`.
+
+### Custom HTML template
+
+The custom HTML template can contain the following variables:
+
+- `{{.html}}` contains the parsed html code from the markdown
+- `{{.css}}` contains the css link obtained by the `--css` parameter
+- `{{.title}}` contains title string obtained by the `--title` parameter
+
+```shell
+> gm --html mymodel.html README.md
+```
+
+We can use a file of a string as `--html` parameter (run in bash here):
+
+```shell
+> echo "*test*" | gm -t "Test page" -s air --html $'title: {{.title}}\ncss: {{.css}}\nhtml: {{.html}}'
+title: Test page
+css: https://kpym.github.io/markdown-css/air.min.css
+html: <p><em>test</em></p>
+```
 
 ## Installation
 

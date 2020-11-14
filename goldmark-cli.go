@@ -19,7 +19,7 @@ var version string = "--"
 
 // temporary default template
 // this should be moved out of this file
-var defaultHTMLTemplate = `
+var defaultHTMLTemplate string = `
 <!doctype html>
 <html>
   <head>
@@ -83,11 +83,11 @@ func help() {
 
 var (
 	// The flags (for descriptions check SetParameters function)
-	infile   string
-	input    io.Reader
-	css      string
-	title    string
-	showhelp bool
+	infile    string
+	css       string
+	title     string
+	htmlshell string
+	showhelp  bool
 
 	// temp variable for error catch
 	err error
@@ -96,6 +96,7 @@ var (
 func SetParameters() {
 	flag.StringVarP(&css, "css", "s", "github", "The css file or the theme name present in github.com/kpym/markdown-css")
 	flag.StringVarP(&title, "title", "t", "", "The page title.")
+	flag.StringVar(&htmlshell, "html", "", "The html htmlshell (file or string).")
 	flag.BoolVarP(&showhelp, "help", "h", false, "Print this help message.")
 	// keep the flags order
 	flag.CommandLine.SortFlags = false
@@ -123,6 +124,14 @@ func SetParameters() {
 	if css != "" && !strings.Contains(css, "/") && !strings.Contains(css, ".") {
 		css = "https://kpym.github.io/markdown-css/" + css + ".min.css"
 	}
+	// set the template
+	t, err := ioutil.ReadFile(htmlshell)
+	if err == nil {
+		htmlshell = string(t)
+	}
+	if htmlshell == "" {
+		htmlshell = defaultHTMLTemplate
+	}
 }
 
 // entry point & validation
@@ -132,9 +141,10 @@ func main() {
 	// The flags
 	SetParameters()
 	// Prepare the template
-	t, err := template.New("md").Parse(string(defaultHTMLTemplate))
+	t, err := template.New("md").Parse(htmlshell)
 	check(err, "Problem parsing the HTML template.")
 	// Get the input
+	var input io.Reader
 	if infile != "" {
 		f, err := os.Open(infile)
 		check(err, "Problem opening", infile)
