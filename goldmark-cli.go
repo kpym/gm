@@ -96,7 +96,7 @@ var (
 func SetParameters() {
 	flag.StringVarP(&css, "css", "s", "github", "The css file or the theme name present in github.com/kpym/markdown-css")
 	flag.StringVarP(&title, "title", "t", "", "The page title.")
-	flag.StringVar(&htmlshell, "html", "", "The html htmlshell (file or string).")
+	flag.StringVar(&htmlshell, "html", "", "The html shell (file or string).")
 	flag.BoolVarP(&showhelp, "help", "h", false, "Print this help message.")
 	// keep the flags order
 	flag.CommandLine.SortFlags = false
@@ -133,6 +133,9 @@ func SetParameters() {
 		htmlshell = defaultHTMLTemplate
 	}
 }
+
+// to configure goldmark, check how hugo do this:
+// https://github.com/gohugoio/hugo/blob/ca68abf0bc2fa003c2052143218f7b2ab195a46e/markup/goldmark/convert.go
 
 // entry point & validation
 func main() {

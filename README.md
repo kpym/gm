@@ -22,7 +22,7 @@ Usage: gm [options] [file.md].
 
   -s, --css string     The css file or the theme name present in github.com/kpym/markdown-css (default "github")
   -t, --title string   The page title.
-      --html string    The html htmlshell (file or string).
+      --html string    The html shell (file or string).
   -h, --help           Print this help message.
 ```
 
