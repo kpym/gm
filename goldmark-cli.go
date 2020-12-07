@@ -138,7 +138,7 @@ func SetParameters() {
 	flag.BoolVar(&typographer, "typographer", true, "Activate punctuations substitution with typographic entities.")
 	flag.BoolVar(&unsafe, "unsafe", true, "Enables raw html.")
 
-	flag.BoolVar(&hardWraps, "hardWraps", false, "Render newlines as <br>.")
+	flag.BoolVar(&hardWraps, "hard-wraps", false, "Render newlines as <br>.")
 	flag.BoolVar(&xhtml, "xhtml", false, "Render as XHTML.")
 
 	flag.BoolVarP(&showhelp, "help", "h", false, "Print this help message.")
