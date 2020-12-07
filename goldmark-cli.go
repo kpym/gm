@@ -12,6 +12,10 @@ import (
 
 	flag "github.com/spf13/pflag"
 	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/parser"
+	"github.com/yuin/goldmark/renderer"
+	"github.com/yuin/goldmark/renderer/html"
 )
 
 // the version will be set by goreleaser based on the git tag
@@ -87,16 +91,56 @@ var (
 	css       string
 	title     string
 	htmlshell string
-	showhelp  bool
+
+	attribute      bool
+	definitionList bool
+	footnote       bool
+	linkify        bool
+	strikethrough  bool
+	table          bool
+	taskList       bool
+	typographer    bool
+	unsafe         bool
+	autoHeadingId  bool
+	hardWraps      bool
+	xhtml          bool
+
+	showhelp bool
 
 	// temp variable for error catch
 	err error
 )
 
+// Set the configuration variables from the command line flags
+// The following options are missing
+// - Subscript / Superscript
+// - Ins
+// - Mark
+// - Inline footnote
+// - Compact style definition lists
+// - Emojis
+// - Abbreviations
+// - Code highlighting
+// - Math rendering
 func SetParameters() {
 	flag.StringVarP(&css, "css", "s", "github", "The css file or the theme name present in github.com/kpym/markdown-css")
 	flag.StringVarP(&title, "title", "t", "", "The page title.")
 	flag.StringVar(&htmlshell, "html", "", "The html shell (file or string).")
+
+	flag.BoolVar(&attribute, "attribute", true, "Allows to define attributes on some elements.")
+	flag.BoolVar(&autoHeadingId, "auto-heading-id", true, "Enables auto heading ids.")
+	flag.BoolVar(&definitionList, "definition-list", true, "Enables definition lists.")
+	flag.BoolVar(&footnote, "footnote", true, "Enables footnotes.")
+	flag.BoolVar(&linkify, "linkify", true, "Activates auto links.")
+	flag.BoolVar(&strikethrough, "strikethrough", true, "Enables strike through.")
+	flag.BoolVar(&table, "table", true, "Enables tables.")
+	flag.BoolVar(&taskList, "task-list", true, "Enables task lists.")
+	flag.BoolVar(&typographer, "typographer", true, "Activate punctuations substitution with typographic entities.")
+	flag.BoolVar(&unsafe, "unsafe", true, "Enables raw html.")
+
+	flag.BoolVar(&hardWraps, "hardWraps", false, "Render newlines as <br>.")
+	flag.BoolVar(&xhtml, "xhtml", false, "Render as XHTML.")
+
 	flag.BoolVarP(&showhelp, "help", "h", false, "Print this help message.")
 	// keep the flags order
 	flag.CommandLine.SortFlags = false
@@ -105,14 +149,14 @@ func SetParameters() {
 	// The help message
 	flag.Usage = help
 	err = flag.CommandLine.Parse(os.Args[1:])
-	// affiche l'aide si demandé ou si erreur de paramètre
+	// display the help message if the flag is set or if there is an error
 	if showhelp || err != nil {
 		flag.Usage()
 		check(err, "Problem parsing parameters.")
 		os.Exit(0)
 	}
 
-	// chack for positional parameters
+	// check for positional parameters
 	if flag.NArg() > 1 {
 		check(errors.New("No more than one positional parameter (markdown filename) can be specified."))
 	}
@@ -134,8 +178,67 @@ func SetParameters() {
 	}
 }
 
-// to configure goldmark, check how hugo do this:
-// https://github.com/gohugoio/hugo/blob/ca68abf0bc2fa003c2052143218f7b2ab195a46e/markup/goldmark/convert.go
+// Create new markdown parser with configuration based on the parameter flags
+// The code is borrowed from:
+//		https://github.com/gohugoio/hugo/blob/d90e37e0c6e812f9913bf256c9c81aa05b7a08aa/markup/goldmark/convert.go
+func newMarkdown() goldmark.Markdown {
+	var (
+		rendererOptions []renderer.Option
+		extensions      []goldmark.Extender
+		parserOptions   []parser.Option
+	)
+
+	if attribute {
+		parserOptions = append(parserOptions, parser.WithAttribute())
+	}
+	if autoHeadingId {
+		parserOptions = append(parserOptions, parser.WithAutoHeadingID())
+	}
+	if definitionList {
+		extensions = append(extensions, extension.DefinitionList)
+	}
+	if footnote {
+		extensions = append(extensions, extension.Footnote)
+	}
+	if linkify {
+		extensions = append(extensions, extension.Linkify)
+	}
+	if strikethrough {
+		extensions = append(extensions, extension.Strikethrough)
+	}
+	if table {
+		extensions = append(extensions, extension.Table)
+	}
+	if taskList {
+		extensions = append(extensions, extension.TaskList)
+	}
+	if typographer {
+		extensions = append(extensions, extension.Typographer)
+	}
+	if unsafe {
+		rendererOptions = append(rendererOptions, html.WithUnsafe())
+	}
+	if hardWraps {
+		rendererOptions = append(rendererOptions, html.WithHardWraps())
+	}
+	if xhtml {
+		rendererOptions = append(rendererOptions, html.WithXHTML())
+	}
+
+	md := goldmark.New(
+		goldmark.WithExtensions(
+			extensions...,
+		),
+		goldmark.WithParserOptions(
+			parserOptions...,
+		),
+		goldmark.WithRendererOptions(
+			rendererOptions...,
+		),
+	)
+
+	return md
+}
 
 // entry point & validation
 func main() {
@@ -161,7 +264,8 @@ func main() {
 	check(err, "Problem while reading the markdown.")
 	// convert the markdown to html code
 	var mdhtml bytes.Buffer
-	err = goldmark.Convert(markdown, &mdhtml)
+	md := newMarkdown()
+	err = md.Convert(markdown, &mdhtml)
 	check(err, "Problem parsing your markdown to html with goldmark.")
 	// combine the template and the resulting
 	var data = make(map[string]template.HTML)

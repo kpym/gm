@@ -20,10 +20,23 @@ Usage: gm [options] [file.md].
   If the markdown file is missing the standard input is used in place.
   The available options are:
 
-  -s, --css string     The css file or the theme name present in github.com/kpym/markdown-css (default "github")
-  -t, --title string   The page title.
-      --html string    The html shell (file or string).
-  -h, --help           Print this help message.
+  -s, --css string        The css file or the theme name present in github.com/kpym/markdown-css (default "github")
+  -t, --title string      The page title.
+      --html string       The html shell (file or string).
+      --attribute         Allows to define attributes on some elements. (default true)
+      --auto-heading-id   Enables auto heading ids. (default true)
+      --definition-list   Enables definition lists. (default true)
+      --footnote          Enables footnotes. (default true)
+      --linkify           Activates auto links. (default true)
+      --strikethrough     Enables strike through. (default true)
+      --table             Enables tables. (default true)
+      --task-list         Enables task lists. (default true)
+      --typographer       Activate punctuations substitution with typographic entities. (default true)
+      --unsafe            Enables raw html. (default true)
+      --hardWraps         Render newlines as <br>.
+      --xhtml             Render as XHTML.
+  -h, --help              Print this help message.
+
 ```
 
 ### Piped input with parameters
