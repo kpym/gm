@@ -46,6 +46,12 @@ Usage: gm [options] [file.md].
 
 Here `jasonm23-markdown` is converted to `https://kpym.github.io/markdown-css/jasonm23-markdown.min.css`.
 
+### List of the available themes
+
+The list off alla available css themre is: `air`, `github`, `jasonm23-dark`, `jasonm23-foghorn`, `jasonm23-markdown`, `jasonm23-swiss`, `markedapp-byword`, `mixu-page`, `mixu-radar`, `modest`, `retro`, `roryg-ghostwriter`, `splendor`, `thomasf-solarizedcssdark`, `thomasf-solarizedcsslight`, `witex`.
+
+All this thème are hosted on GitHub pages of the [markdown-css](https://github.com/kpym/markdown-css) projest.
+
 ### Custom HTML template
 
 The custom HTML template can contain the following variables:
