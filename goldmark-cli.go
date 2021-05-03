@@ -8,6 +8,8 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+	"regexp"
 	"strings"
 
 	flag "github.com/spf13/pflag"
@@ -78,8 +80,10 @@ func help() {
 	// var out = os.Stderr
 	// write the help message
 	fmt.Fprintf(out, "gm (version: %s): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark.\n\n", version)
-	fmt.Fprintf(out, "Usage: gm [options] [file.md].\n")
-	fmt.Fprintf(out, "  If the markdown file is missing the standard input is used in place.\n")
+	fmt.Fprintf(out, "Usage: gm [options] <file.md|file pattern|stdin>.\n\n")
+	fmt.Fprintf(out, "  If a file pattern is used, only the mached .md files are used.\n")
+	fmt.Fprintf(out, "  The .md files are converted to .html with the same name.\n")
+	fmt.Fprintf(out, "  If the .html file exists it is overwritten.\n")
 	fmt.Fprintf(out, "  The available options are:\n\n")
 	flag.PrintDefaults()
 	fmt.Fprintf(out, "\n")
@@ -87,7 +91,7 @@ func help() {
 
 var (
 	// The flags (for descriptions check SetParameters function)
-	infile    string
+	inpattern string
 	css       string
 	title     string
 	htmlshell string
@@ -104,6 +108,8 @@ var (
 	autoHeadingId  bool
 	hardWraps      bool
 	xhtml          bool
+
+	localmdlinks bool
 
 	showhelp bool
 
@@ -141,11 +147,13 @@ func SetParameters() {
 	flag.BoolVar(&hardWraps, "hard-wraps", false, "Render newlines as <br>.")
 	flag.BoolVar(&xhtml, "xhtml", false, "Render as XHTML.")
 
+	flag.BoolVar(&localmdlinks, "links-md2html", true, "Convert links to local .md files to corresponding .html.")
+
 	flag.BoolVarP(&showhelp, "help", "h", false, "Print this help message.")
 	// keep the flags order
 	flag.CommandLine.SortFlags = false
 	// in case of error do not display second time
-	flag.CommandLine.Init("marianne", flag.ContinueOnError)
+	flag.CommandLine.Init("goldmark-cli", flag.ContinueOnError)
 	// The help message
 	flag.Usage = help
 	err = flag.CommandLine.Parse(os.Args[1:])
@@ -158,12 +166,16 @@ func SetParameters() {
 
 	// check for positional parameters
 	if flag.NArg() > 1 {
-		check(errors.New("No more than one positional parameter (markdown filename) can be specified."))
+		flag.Usage()
+		check(errors.New("No more than one positional parameter (markdown filename or pattern) can be specified."))
 	}
-	// get the positional parameter if any
-	if flag.NArg() > 0 {
-		infile = flag.Arg(0)
+	if flag.NArg() < 1 {
+		flag.Usage()
+		check(errors.New("One positional parameter (markdown filename or pattern) should be provided."))
 	}
+	// get the positional parameter
+	inpattern = flag.Arg(0)
+
 	// set the css
 	if css != "" && !strings.Contains(css, "/") && !strings.Contains(css, ".") {
 		css = "https://kpym.github.io/markdown-css/" + css + ".min.css"
@@ -240,15 +252,7 @@ func newMarkdown() goldmark.Markdown {
 	return md
 }
 
-// entry point & validation
-func main() {
-	// error handling
-	defer end()
-	// The flags
-	SetParameters()
-	// Prepare the template
-	t, err := template.New("md").Parse(htmlshell)
-	check(err, "Problem parsing the HTML template.")
+func build(infile string, t *template.Template) {
 	// Get the input
 	var input io.Reader
 	if infile != "" {
@@ -275,7 +279,54 @@ func main() {
 	var finalhtml bytes.Buffer
 	err = t.Execute(&finalhtml, data)
 	check(err, "Problem building the HTML from the template and your markdown.")
-
+	result := finalhtml.Bytes()
+	// replace .md links with .html for local files
+	if localmdlinks {
+		link := regexp.MustCompile(`href\s*=\s*"([^"]+)\.md"`)
+		result = link.ReplaceAllFunc(result, func(s []byte) []byte {
+			filename := strings.Split(string(s), `"`)[1]
+			if _, err := os.Stat(filename); os.IsNotExist(err) {
+				return s
+			}
+			return []byte(fmt.Sprintf(`href="%s.html"`, filename[:len(filename)-3]))
+		})
+	}
 	// output the result
-	os.Stdout.Write(finalhtml.Bytes())
+	if infile == "" {
+		os.Stdout.Write(result)
+	} else {
+		outfile := infile[:len(infile)-3] + ".html"
+		err = ioutil.WriteFile(outfile, result, 0644)
+		check(err, "Problem modifying", outfile)
+	}
+}
+
+// entry point & validation
+func main() {
+	// error handling
+	defer end()
+	// The flags
+	SetParameters()
+	// Prepare the template
+	t, err := template.New("md").Parse(htmlshell)
+	check(err, "Problem parsing the HTML template.")
+	// if the input is piped
+	if inpattern == "stdin" {
+		build("", t)
+		return
+	}
+	// look for all files with the given pattern
+	// but build only .md ones
+	allfiles, err := filepath.Glob(inpattern)
+	check(err, "Problem looking for file pattern:", inpattern)
+	if len(allfiles) == 0 {
+		check(errors.New("No files found."), "Problem looking for file pattern:", inpattern)
+	}
+	for _, infile := range allfiles {
+		if strings.HasSuffix(infile, ".md") {
+			fmt.Printf("Converting %s...", infile)
+			build(infile, t)
+			fmt.Println("done.")
+		}
+	}
 }

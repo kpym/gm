@@ -16,8 +16,11 @@ This tool is a thin wrapper around the [github.com/yuin/goldmark](https://github
 > ./gm -h
 gm (version: --): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark.
 
-Usage: gm [options] [file.md].
-  If the markdown file is missing the standard input is used in place.
+Usage: gm [options] <file.md|file pattern|stdin>.
+
+  If a file pattern is used, only the mached .md files are used.
+  The .md files are converted to .html with the same name.
+  If the .html file exists it is overwritten.
   The available options are:
 
   -s, --css string        The css file or the theme name present in github.com/kpym/markdown-css (default "github")
@@ -33,8 +36,9 @@ Usage: gm [options] [file.md].
       --task-list         Enables task lists. (default true)
       --typographer       Activate punctuations substitution with typographic entities. (default true)
       --unsafe            Enables raw html. (default true)
-      --hardWraps         Render newlines as <br>.
+      --hard-wraps        Render newlines as <br>.
       --xhtml             Render as XHTML.
+      --links-md2html     Convert links to local .md files to corresponding .html. (default true)
   -h, --help              Print this help message.
 
 ```
@@ -48,9 +52,9 @@ Here `jasonm23-markdown` is converted to `https://kpym.github.io/markdown-css/ja
 
 ### List of the available themes
 
-The list off alla available css themre is: `air`, `github`, `jasonm23-dark`, `jasonm23-foghorn`, `jasonm23-markdown`, `jasonm23-swiss`, `markedapp-byword`, `mixu-page`, `mixu-radar`, `modest`, `retro`, `roryg-ghostwriter`, `splendor`, `thomasf-solarizedcssdark`, `thomasf-solarizedcsslight`, `witex`.
+The list off all available css themre is: `air`, `github`, `jasonm23-dark`, `jasonm23-foghorn`, `jasonm23-markdown`, `jasonm23-swiss`, `markedapp-byword`, `mixu-page`, `mixu-radar`, `modest`, `retro`, `roryg-ghostwriter`, `splendor`, `thomasf-solarizedcssdark`, `thomasf-solarizedcsslight`, `witex`.
 
-All this thème are hosted on GitHub pages of the [markdown-css](https://github.com/kpym/markdown-css) projest.
+All this theme are hosted on GitHub pages of the [markdown-css](https://github.com/kpym/markdown-css) project.
 
 ### Custom HTML template
 
@@ -64,7 +68,7 @@ The custom HTML template can contain the following variables:
 > gm --html mymodel.html README.md
 ```
 
-We can use a file of a string as `--html` parameter (run in bash here):
+We can use a file or a string as `--html` parameter (run in bash here):
 
 ```shell
 > echo "*test*" | gm -t "Test page" -s air --html $'title: {{.title}}\ncss: {{.css}}\nhtml: {{.html}}'
@@ -77,13 +81,13 @@ html: <p><em>test</em></p>
 
 ### Precompiled executables
 
-You can download the executable for your platform from the [Realases](https://github.com/kpym/goldmark-cli/releases).
+You can download the executable for your platform from the [Releases](https://github.com/kpym/goldmark-cli/releases).
 
 ### Compile it yourself
 
 #### Using Go
 
-This method will comile to executable named `goldmark-cli` and not `gm`.
+This method will compile to executable named `goldmark-cli` and not `gm`.
 
 ```shell
 $ go get github.com/kpym/goldmark-cli
@@ -91,7 +95,7 @@ $ go get github.com/kpym/goldmark-cli
 
 #### Using goreleaser
 
-After cloning this repo you can comile the sources with [goreleaser](https://github.com/goreleaser/goreleaser/) for all available platforms:
+After cloning this repo you can compile the sources with [goreleaser](https://github.com/goreleaser/goreleaser/) for all available platforms:
 
 ```shell
 git clone https://github.com/kpym/goldmark-cli.git .
