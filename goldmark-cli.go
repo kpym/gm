@@ -91,10 +91,12 @@ func help() {
 
 var (
 	// The flags (for descriptions check SetParameters function)
-	inpattern string
-	css       string
-	title     string
-	htmlshell string
+	inpatterns []string
+	css        string
+	title      string
+	htmlshell  string
+
+	outdir string
 
 	attribute      bool
 	definitionList bool
@@ -129,9 +131,11 @@ var (
 // - Code highlighting
 // - Math rendering
 func SetParameters() {
-	flag.StringVarP(&css, "css", "s", "github", "The css file or the theme name present in github.com/kpym/markdown-css")
+	flag.StringVarP(&css, "css", "s", "github", "A css url or the theme name present in github.com/kpym/markdown-css")
 	flag.StringVarP(&title, "title", "t", "", "The page title.")
-	flag.StringVar(&htmlshell, "html", "", "The html shell (file or string).")
+	flag.StringVar(&htmlshell, "html", "", "The html template (file or string).")
+
+	flag.StringVarP(&outdir, "out-dir", "o", "", "The output folder (created if not already existing).")
 
 	flag.BoolVar(&attribute, "attribute", true, "Allows to define attributes on some elements.")
 	flag.BoolVar(&autoHeadingId, "auto-heading-id", true, "Enables auto heading ids.")
@@ -147,7 +151,7 @@ func SetParameters() {
 	flag.BoolVar(&hardWraps, "hard-wraps", false, "Render newlines as <br>.")
 	flag.BoolVar(&xhtml, "xhtml", false, "Render as XHTML.")
 
-	flag.BoolVar(&localmdlinks, "links-md2html", true, "Convert links to local .md files to corresponding .html.")
+	flag.BoolVar(&localmdlinks, "links-md2html", true, "Convert links to local .md files to the corresponding .html.")
 
 	flag.BoolVarP(&showhelp, "help", "h", false, "Print this help message.")
 	// keep the flags order
@@ -164,17 +168,20 @@ func SetParameters() {
 		os.Exit(0)
 	}
 
+	// get the positional parameters
+	inpatterns = flag.Args()
 	// check for positional parameters
-	if flag.NArg() > 1 {
+	if len(inpatterns) == 0 {
 		flag.Usage()
-		check(errors.New("No more than one positional parameter (markdown filename or pattern) can be specified."))
+		check(errors.New("At least one input 'file.md', 'p*ttern' or 'stdin' should be provided."))
 	}
-	if flag.NArg() < 1 {
-		flag.Usage()
-		check(errors.New("One positional parameter (markdown filename or pattern) should be provided."))
+
+	// check the out dir
+	if outdir != "" {
+		if os.MkdirAll(outdir, os.ModePerm) != nil {
+			check(fmt.Errorf("The specifide output folder '%s' is not reachable.", outdir))
+		}
 	}
-	// get the positional parameter
-	inpattern = flag.Arg(0)
 
 	// set the css
 	if css != "" && !strings.Contains(css, "/") && !strings.Contains(css, ".") {
@@ -253,6 +260,8 @@ func newMarkdown() goldmark.Markdown {
 }
 
 func build(infile string, t *template.Template) {
+	// get the dir for link replacement, if any
+	dir := filepath.Dir(infile)
 	// Get the input
 	var input io.Reader
 	if infile != "" {
@@ -262,6 +271,7 @@ func build(infile string, t *template.Template) {
 		input = f
 	} else {
 		input = os.Stdin
+		dir = "."
 	}
 	// read the input
 	markdown, err := ioutil.ReadAll(input)
@@ -285,7 +295,8 @@ func build(infile string, t *template.Template) {
 		link := regexp.MustCompile(`href\s*=\s*"([^"]+)\.md"`)
 		result = link.ReplaceAllFunc(result, func(s []byte) []byte {
 			filename := strings.Split(string(s), `"`)[1]
-			if _, err := os.Stat(filename); os.IsNotExist(err) {
+			relname := filepath.Join(dir, filename)
+			if _, err := os.Stat(relname); err != nil {
 				return s
 			}
 			return []byte(fmt.Sprintf(`href="%s.html"`, filename[:len(filename)-3]))
@@ -295,7 +306,10 @@ func build(infile string, t *template.Template) {
 	if infile == "" {
 		os.Stdout.Write(result)
 	} else {
-		outfile := infile[:len(infile)-3] + ".html"
+		outfile := filepath.Join(outdir, infile[:len(infile)-3]+".html")
+		if os.MkdirAll(filepath.Dir(outfile), os.ModePerm) != nil {
+			println("    problem creating", filepath.Dir(outfile))
+		}
 		err = ioutil.WriteFile(outfile, result, 0644)
 		check(err, "Problem modifying", outfile)
 	}
@@ -310,23 +324,28 @@ func main() {
 	// Prepare the template
 	t, err := template.New("md").Parse(htmlshell)
 	check(err, "Problem parsing the HTML template.")
-	// if the input is piped
-	if inpattern == "stdin" {
-		build("", t)
-		return
-	}
-	// look for all files with the given pattern
-	// but build only .md ones
-	allfiles, err := filepath.Glob(inpattern)
-	check(err, "Problem looking for file pattern:", inpattern)
-	if len(allfiles) == 0 {
-		check(errors.New("No files found."), "Problem looking for file pattern:", inpattern)
-	}
-	for _, infile := range allfiles {
-		if strings.HasSuffix(infile, ".md") {
-			fmt.Printf("Converting %s...", infile)
-			build(infile, t)
-			fmt.Println("done.")
+	// check all patterns
+	for _, pattern := range inpatterns {
+		fmt.Printf("Looking for '%s'.\n", pattern)
+		// if the input is piped
+		if pattern == "stdin" {
+			build("", t)
+			continue
+		}
+		// look for all files with the given patterns
+		// but build only .md ones
+		allfiles, err := filepath.Glob(pattern)
+		check(err, "Problem looking for file pattern:", pattern)
+		if len(allfiles) == 0 {
+			fmt.Println("No files found.")
+			continue
+		}
+		for _, infile := range allfiles {
+			if strings.HasSuffix(infile, ".md") {
+				fmt.Printf("  Converting %s...", infile)
+				build(infile, t)
+				fmt.Println("done.")
+			}
 		}
 	}
 }

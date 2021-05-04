@@ -23,9 +23,10 @@ Usage: gm [options] <file.md|file pattern|stdin>.
   If the .html file exists it is overwritten.
   The available options are:
 
-  -s, --css string        The css file or the theme name present in github.com/kpym/markdown-css (default "github")
+  -s, --css string        A css url or the theme name present in github.com/kpym/markdown-css (default "github")
   -t, --title string      The page title.
-      --html string       The html shell (file or string).
+      --html string       The html template (file or string).
+  -o, --out-dir string    The output folder (created if not already existing).
       --attribute         Allows to define attributes on some elements. (default true)
       --auto-heading-id   Enables auto heading ids. (default true)
       --definition-list   Enables definition lists. (default true)
@@ -38,7 +39,7 @@ Usage: gm [options] <file.md|file pattern|stdin>.
       --unsafe            Enables raw html. (default true)
       --hard-wraps        Render newlines as <br>.
       --xhtml             Render as XHTML.
-      --links-md2html     Convert links to local .md files to corresponding .html. (default true)
+      --links-md2html     Convert links to local .md files to the corresponding .html. (default true)
   -h, --help              Print this help message.
 
 ```
