@@ -40,6 +40,7 @@ Usage: gm [options] <file.md|file pattern|stdin>.
       --hard-wraps        Render newlines as <br>.
       --xhtml             Render as XHTML.
       --links-md2html     Convert links to local .md files to the corresponding .html. (default true)
+  -q, --quiet             No errors, no info is printed. Return error code is still available.
   -h, --help              Print this help message.
 
 ```
@@ -88,10 +89,17 @@ You can download the executable for your platform from the [Releases](https://gi
 
 #### Using Go
 
-This method will compile to executable named `goldmark-cli` and not `gm`.
+This method will compile and install the executable named `goldmark-cli` and not `gm`.
 
 ```shell
 $ go get github.com/kpym/goldmark-cli
+```
+
+You can also clone and build to `gm` in the current folder like this
+
+```shell
+git clone https://github.com/kpym/goldmark-cli.git .
+go build -o 'gm' .
 ```
 
 #### Using goreleaser
@@ -103,7 +111,7 @@ git clone https://github.com/kpym/goldmark-cli.git .
 goreleaser --snapshot --skip-publish --rm-dist
 ```
 
-You will find the resulting binaries in the `dist/` subfolder.
+You will find the resulting binaries in the `dist/` sub-folder.
 
 ## License
 
