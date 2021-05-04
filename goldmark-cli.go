@@ -25,8 +25,7 @@ var version string = "--"
 
 // temporary default template
 // this should be moved out of this file
-var defaultHTMLTemplate string = `
-<!doctype html>
+var defaultHTMLTemplate string = `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
@@ -52,12 +51,12 @@ var defaultHTMLTemplate string = `
 func check(e error, m ...interface{}) {
 	if e != nil {
 		if len(m) > 0 {
-			fmt.Print("Error: ")
-			fmt.Println(m...)
+			fmt.Fprint(errOut, "Error: ")
+			fmt.Fprintln(errOut, m...)
 		} else {
-			fmt.Println("Error.")
+			fmt.Fprintln(errOut, "Error.")
 		}
-		fmt.Printf("More info: %v\n", e)
+		fmt.Fprintf(errOut, "More info: %v\n", e)
 		panic(e)
 	}
 }
@@ -113,10 +112,12 @@ var (
 
 	localmdlinks bool
 
+	quiet    bool
 	showhelp bool
 
 	// temp variable for error catch
-	err error
+	err    error
+	errOut io.Writer
 )
 
 // Set the configuration variables from the command line flags
@@ -153,6 +154,7 @@ func SetParameters() {
 
 	flag.BoolVar(&localmdlinks, "links-md2html", true, "Convert links to local .md files to the corresponding .html.")
 
+	flag.BoolVarP(&quiet, "quiet", "q", false, "No errors, no info is printed. Return error code is still available.")
 	flag.BoolVarP(&showhelp, "help", "h", false, "Print this help message.")
 	// keep the flags order
 	flag.CommandLine.SortFlags = false
@@ -166,6 +168,13 @@ func SetParameters() {
 		flag.Usage()
 		check(err, "Problem parsing parameters.")
 		os.Exit(0)
+	}
+
+	// quiet or no
+	if quiet {
+		errOut = ioutil.Discard
+	} else {
+		errOut = os.Stderr
 	}
 
 	// get the positional parameters
@@ -308,7 +317,7 @@ func build(infile string, t *template.Template) {
 	} else {
 		outfile := filepath.Join(outdir, infile[:len(infile)-3]+".html")
 		if os.MkdirAll(filepath.Dir(outfile), os.ModePerm) != nil {
-			println("    problem creating", filepath.Dir(outfile))
+			check(err, "Problem to reach/create folder:", filepath.Dir(outfile))
 		}
 		err = ioutil.WriteFile(outfile, result, 0644)
 		check(err, "Problem modifying", outfile)
@@ -326,7 +335,7 @@ func main() {
 	check(err, "Problem parsing the HTML template.")
 	// check all patterns
 	for _, pattern := range inpatterns {
-		fmt.Printf("Looking for '%s'.\n", pattern)
+		fmt.Fprintf(errOut, "Looking for '%s'.\n", pattern)
 		// if the input is piped
 		if pattern == "stdin" {
 			build("", t)
@@ -337,14 +346,14 @@ func main() {
 		allfiles, err := filepath.Glob(pattern)
 		check(err, "Problem looking for file pattern:", pattern)
 		if len(allfiles) == 0 {
-			fmt.Println("No files found.")
+			fmt.Fprintln(errOut, "No files found.")
 			continue
 		}
 		for _, infile := range allfiles {
 			if strings.HasSuffix(infile, ".md") {
-				fmt.Printf("  Converting %s...", infile)
+				fmt.Fprintf(errOut, "  Converting %s...", infile)
 				build(infile, t)
-				fmt.Println("done.")
+				fmt.Fprintln(errOut, "done.")
 			}
 		}
 	}
