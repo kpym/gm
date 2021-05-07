@@ -16,6 +16,9 @@ builds:
       - darwin
     ldflags:
      - -s -w -X main.version={{.Version}}
+    hooks:
+      post:
+       - upx "{{ .Path }}"
 archives:
   - replacements:
       darwin: MacOS
