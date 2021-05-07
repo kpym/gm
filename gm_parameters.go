@@ -26,7 +26,7 @@ func help() {
 	fmt.Fprintf(out, "gm (version: %s): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark.\n\n", version)
 	fmt.Fprintf(out, "Usage: gm [options] (file.md|file pattern|stdin)+.\n\n")
 	fmt.Fprintf(out, "  If not serving (no `--serve` or `-s` option is used):\n")
-	fmt.Fprintf(out, "  - if  file pattern is used, only the matched .md files are used;\n")
+	fmt.Fprintf(out, "  - if file pattern is used, only the matched .md files are used;\n")
 	fmt.Fprintf(out, "  - the .md files are converted to .html with the same name;\n")
 	fmt.Fprintf(out, "  - if the .html file exists it is overwritten.\n\n")
 	fmt.Fprintf(out, "  The available options are:\n\n")

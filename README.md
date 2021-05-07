@@ -28,7 +28,7 @@ gm (version: --): a goldmark cli tool which is a thin wrapper around github.com/
 Usage: gm [options] (file.md|file pattern|stdin)+.
 
   If not serving (no `--serve` or `-s` option is used):
-  - if  file pattern is used, only the matched .md files are used;
+  - if file pattern is used, only the matched .md files are used;
   - the .md files are converted to .html with the same name;
   - if the .html file exists it is overwritten.
 
