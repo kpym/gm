@@ -34,3 +34,22 @@ title: Test page
 css: https://kpym.github.io/markdown-css/air.min.css
 html: <p><em>test</em></p>
 ```
+
+## Use gm to produce a GitLab pages website
+
+Here is an example of possible `.gitlab-ci.yml`:
+
+```yaml
+variables:
+  DOCKER_DRIVER: overlay2 # for speed up
+pages:
+  image: alpine
+  script:
+    - wget -c https://github.com/kpym/goldmark-cli/releases/download/v0.7.0/gm_0.7.0_Linux_64bit.tar.gz -O - | tar -xz gm
+    - ./gm '*.md' -o public
+    - mv public/README.html public/index.html
+    # add here more commands to move files to public
+  artifacts:
+    paths:
+      - public
+```
