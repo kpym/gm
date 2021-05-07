@@ -42,6 +42,9 @@ func compile(markdown []byte) (html []byte, err error) {
 	data["title"] = template.HTML(getTitle(markdown))
 	data["css"] = template.HTML(css)
 	data["html"] = template.HTML(htmlBuf.String())
+	if liveupdate {
+		data["liveupdate"] = template.HTML("yes")
+	}
 
 	htmlBuf.Reset()
 	err = mdTemplate.Execute(&htmlBuf, data)

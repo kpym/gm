@@ -1,105 +1,78 @@
-# gm
+# gm (goldmark cli)
 
-Cli tool converting Markdown to HTML.
+A cli tool converting Markdown to HTML.
 This tool is a thin wrapper around the [github.com/yuin/goldmark](https://github.com/yuin/goldmark) library.
 
 
 ## Usage
 
-### Simple md to html
+### Single md to html
+
 ```shell
-> gm file.md > file.html
+> gm file.md
 ```
+
+### Open (and watch) md file in the browser
+
+```shell
+> gm --serve file.md
+```
+
 
 ### The usage message
+
 ```shell
-> ./gm -h
+> gm -h
 gm (version: --): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark.
 
-Usage: gm [options] <file.md|file pattern|stdin>.
+Usage: gm [options] (file.md|file pattern|stdin)+.
 
-  If a file pattern is used, only the mached .md files are used.
-  The .md files are converted to .html with the same name.
-  If the .html file exists it is overwritten.
+  If not serving (no `--serve` or `-s` option is used):
+  - if  file pattern is used, only the mached .md files are used;
+  - the .md files are converted to .html with the same name;
+  - if the .html file exists it is overwritten.
+
   The available options are:
 
-  -s, --css string        A css url or the theme name present in github.com/kpym/markdown-css (default "github")
-  -t, --title string      The page title.
-      --html string       The html template (file or string).
-  -o, --out-dir string    The output folder (created if not already existing).
-      --attribute         Allows to define attributes on some elements. (default true)
-      --auto-heading-id   Enables auto heading ids. (default true)
-      --definition-list   Enables definition lists. (default true)
-      --footnote          Enables footnotes. (default true)
-      --linkify           Activates auto links. (default true)
-      --strikethrough     Enables strike through. (default true)
-      --table             Enables tables. (default true)
-      --task-list         Enables task lists. (default true)
-      --typographer       Activate punctuations substitution with typographic entities. (default true)
-      --unsafe            Enables raw html. (default true)
-      --hard-wraps        Render newlines as <br>.
-      --xhtml             Render as XHTML.
-      --links-md2html     Convert links to local .md files to the corresponding .html. (default true)
-  -q, --quiet             No errors, no info is printed. Return error code is still available.
-  -h, --help              Print this help message.
+  -s, --serve                   Start serving local .md file(s). No html is saved.
+  -c, --css string              A css url or the theme name present in github.com/kpym/markdown-css (default "github")
+  -t, --title string            The default page title. Used if no h1 is found in the .md file.
+      --html string             The html template (file or string).
+  -o, --out-dir --serve         The build output folder (created if not already existing, not used if --serve).
+      --gm-attribute            GoldMark option: allows to define attributes on some elements. (default true)
+      --gm-auto-heading-id      GoldMark option: enables auto heading ids. (default true)
+      --gm-definition-list      GoldMark option: enables definition lists. (default true)
+      --gm-footnote             GoldMark option: enables footnotes. (default true)
+      --gm-linkify              GoldMark option: activates auto links. (default true)
+      --gm-strikethrough        GoldMark option: enables strike through. (default true)
+      --gm-table                GoldMark option: enables tables. (default true)
+      --gm-task-list            GoldMark option: enables task lists. (default true)
+      --gm-typographer          GoldMark option: activate punctuations substitution with typographic entities. (default true)
+      --gm-unsafe               GoldMark option: enables raw html. (default true)
+      --gm-hard-wraps           GoldMark option: render newlines as <br>.
+      --gm-xhtml                GoldMark option: render as XHTML.
+      --links-md2html --serve   Replace .md with .html in links to local files (not used if --serve). (default true)
+  -q, --quiet                   No errors, no info is printed. Return error code is still available.
+  -h, --help                    Print this help message.
 
 ```
 
-### Piped input with parameters
-```shell
-> cat file.md | gm -t "Test page" -s jasonm23-markdown
-```
+### How to
 
-Here `jasonm23-markdown` is converted to `https://kpym.github.io/markdown-css/jasonm23-markdown.min.css`.
-
-### List of the available themes
-
-The list off all available css themre is: `air`, `github`, `jasonm23-dark`, `jasonm23-foghorn`, `jasonm23-markdown`, `jasonm23-swiss`, `markedapp-byword`, `mixu-page`, `mixu-radar`, `modest`, `retro`, `roryg-ghostwriter`, `splendor`, `thomasf-solarizedcssdark`, `thomasf-solarizedcsslight`, `witex`.
-
-All this theme are hosted on GitHub pages of the [markdown-css](https://github.com/kpym/markdown-css) project.
-
-### Custom HTML template
-
-The custom HTML template can contain the following variables:
-
-- `{{.html}}` contains the parsed html code from the markdown
-- `{{.css}}` contains the css link obtained by the `--css` parameter
-- `{{.title}}` contains title string obtained by the `--title` parameter
-
-```shell
-> gm --html mymodel.html README.md
-```
-
-We can use a file or a string as `--html` parameter (run in bash here):
-
-```shell
-> echo "*test*" | gm -t "Test page" -s air --html $'title: {{.title}}\ncss: {{.css}}\nhtml: {{.html}}'
-title: Test page
-css: https://kpym.github.io/markdown-css/air.min.css
-html: <p><em>test</em></p>
-```
+For more usage information check the [HOWTO](HOWTO.md) documentation.
 
 ## Installation
 
 ### Precompiled executables
 
-You can download the executable for your platform from the [Releases](https://github.com/kpym/goldmark-cli/releases).
+You can download the executable for your platform from the [Releases](https://github.com/kpym/gm/releases).
 
 ### Compile it yourself
 
 #### Using Go
 
-This method will compile and install the executable named `goldmark-cli` and not `gm`.
-
 ```shell
-$ go get github.com/kpym/goldmark-cli
-```
-
-You can also clone and build to `gm` in the current folder like this
-
-```shell
-git clone https://github.com/kpym/goldmark-cli.git .
-go build -o 'gm' .
+$ go get github.com/kpym/gm
 ```
 
 #### Using goreleaser
@@ -107,7 +80,7 @@ go build -o 'gm' .
 After cloning this repo you can compile the sources with [goreleaser](https://github.com/goreleaser/goreleaser/) for all available platforms:
 
 ```shell
-git clone https://github.com/kpym/goldmark-cli.git .
+git clone https://github.com/kpym/gm.git .
 goreleaser --snapshot --skip-publish --rm-dist
 ```
 
@@ -115,4 +88,4 @@ You will find the resulting binaries in the `dist/` sub-folder.
 
 ## License
 
-MIT
+[MIT](LICENSE)

@@ -24,7 +24,7 @@ func help() {
 	// var out = os.Stderr
 	// write the help message
 	fmt.Fprintf(out, "gm (version: %s): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark.\n\n", version)
-	fmt.Fprintf(out, "Usage: gm [options] <file.md|file pattern|stdin>.\n\n")
+	fmt.Fprintf(out, "Usage: gm [options] (file.md|file pattern|stdin)+.\n\n")
 	fmt.Fprintf(out, "  If not serving (no `--serve` or `-s` option is used):\n")
 	fmt.Fprintf(out, "  - if  file pattern is used, only the mached .md files are used;\n")
 	fmt.Fprintf(out, "  - the .md files are converted to .html with the same name;\n")
@@ -45,9 +45,10 @@ var (
 	inpatterns []string
 
 	// template flags
-	css       string
-	title     string
-	htmlshell string
+	css        string
+	title      string
+	htmlshell  string
+	liveupdate bool
 
 	mdTemplate *template.Template
 
@@ -118,7 +119,7 @@ func SetParameters() {
 	// keep the flags order
 	pflag.CommandLine.SortFlags = false
 	// in case of error do not display second time
-	pflag.CommandLine.Init("goldmark-cli", pflag.ContinueOnError)
+	pflag.CommandLine.Init("gm", pflag.ContinueOnError)
 	// The help message
 	pflag.Usage = help
 	err := pflag.CommandLine.Parse(os.Args[1:])
@@ -188,6 +189,9 @@ func setServeParameters() {
 	if title == "" {
 		title = "GoldMark"
 	}
+
+	// insert live.js in the template
+	liveupdate = true
 }
 
 // setBuildParameters get all paterns and create (if necessary) the "out dir".

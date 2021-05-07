@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 // version will be set by goreleaser based on the git tag
@@ -37,7 +39,7 @@ func try(e error, m ...interface{}) {
 }
 
 // end is the last function executed in this program.
-func end() {
+func mainEnd() {
 	// in case of error return status is 1
 	if r := recover(); r != nil {
 		os.Exit(1)
@@ -47,11 +49,24 @@ func end() {
 	os.Exit(0)
 }
 
+// If we terminate with Ctrl/Cmd-C we call end()
+func catchCtrlC() {
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		info("Bye.\n")
+		mainEnd()
+	}()
+}
+
 // main is the entry point
 func main() {
 
 	// error handling
-	defer end()
+	defer mainEnd()
+	// interrupt handling
+	catchCtrlC()
 
 	// check the flags and init parser
 	SetParameters()

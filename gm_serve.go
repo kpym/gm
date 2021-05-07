@@ -1,14 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
-	"github.com/kpym/goldmark-cli/internal/browser"
+	"github.com/kpym/gm/internal/browser"
 )
 
 // availablePort provides the first available port after 8080
@@ -27,28 +30,45 @@ func availablePort() (port string) {
 // serveFiles serve the local folder `serveDir`.
 // If an .md (or corresponding .html) file is requested it is compiled and send as html.
 func serveFiles() {
+	var lastMethodPath string
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		filename := filepath.Join(serveDir, r.URL.Path)
-		info("Requested file: %s\n", filename)
+		newMethodPath := fmt.Sprintf("\n%s '%s':", r.Method, r.URL.Path)
+		if newMethodPath != lastMethodPath {
+			lastMethodPath = newMethodPath
+			info(newMethodPath)
+		}
 		if strings.HasSuffix(filename, ".html") {
 			filename = filename[0:len(filename)-5] + ".md"
 		}
 		if strings.HasSuffix(filename, "md") {
+			if r.Method == "HEAD" {
+				info(".")
+				if fstat, err := os.Stat(filename); err == nil {
+					w.Header().Set("Last-Modified", fstat.ModTime().UTC().Format(http.TimeFormat))
+					w.Header().Set("Content-Type", "text/html")
+					w.Write([]byte{})
+				}
+				return
+			}
 			if content, err := ioutil.ReadFile(filename); err == nil {
 				if html, err := compile(content); err == nil {
-					info("  Serve converted .md file.\n")
+					info(" serve converted .md file.")
 					w.Write(html)
 					return
 				}
 			}
 		}
 		if r.URL.Path == "/favicon.ico" {
-			info("  Serve internal favicon.ico.\n")
+			info(" serve internal png.")
+			w.Header().Set("Cache-Control", "max-age=86400") // 86400 s = 1 day
+			w.Header().Set("Expires", time.Now().Add(24*time.Hour).UTC().Format(http.TimeFormat))
 			w.Write(favIcon)
 			return
 		}
-		info("  Serve raw file.\n")
+		info(" serve raw file.")
+		w.Header().Set("Cache-Control", "no-store")
 		http.FileServer(http.Dir(serveDir)).ServeHTTP(w, r)
 	})
 

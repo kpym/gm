@@ -21,6 +21,9 @@ var defaultHTMLTemplate string = `<!DOCTYPE html>
 		<article class="markdown-body">
 {{.html}}
 		</article>
+		{{- if .liveupdate }}
+		<script src="http://livejs.com/live.js#html,css"></script>
+		{{- end }}
   </body>
 </html>
 `
