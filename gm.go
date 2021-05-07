@@ -68,7 +68,7 @@ func main() {
 	// interrupt handling
 	catchCtrlC()
 
-	// check the flags and init parser
+	// check the flags and initialize the parser
 	SetParameters()
 
 	// serve or build ?

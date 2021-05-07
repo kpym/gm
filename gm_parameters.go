@@ -26,7 +26,7 @@ func help() {
 	fmt.Fprintf(out, "gm (version: %s): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark.\n\n", version)
 	fmt.Fprintf(out, "Usage: gm [options] (file.md|file pattern|stdin)+.\n\n")
 	fmt.Fprintf(out, "  If not serving (no `--serve` or `-s` option is used):\n")
-	fmt.Fprintf(out, "  - if  file pattern is used, only the mached .md files are used;\n")
+	fmt.Fprintf(out, "  - if  file pattern is used, only the matched .md files are used;\n")
 	fmt.Fprintf(out, "  - the .md files are converted to .html with the same name;\n")
 	fmt.Fprintf(out, "  - if the .html file exists it is overwritten.\n\n")
 	fmt.Fprintf(out, "  The available options are:\n\n")
@@ -92,29 +92,29 @@ func SetParameters() {
 	pflag.BoolVarP(&serve, "serve", "s", false, "Start serving local .md file(s). No html is saved.")
 	pflag.Lookup("serve").NoOptDefVal = "true"
 
-	pflag.StringVarP(&css, "css", "c", "github", "A css url or the theme name present in github.com/kpym/markdown-css")
+	pflag.StringVarP(&css, "css", "c", "github", "A css url or the theme name present in github.com/kpym/markdown-css.")
 	pflag.StringVarP(&title, "title", "t", "", "The default page title. Used if no h1 is found in the .md file.")
 	pflag.StringVar(&htmlshell, "html", "", "The html template (file or string).")
 
-	pflag.StringVarP(&outdir, "out-dir", "o", "", "The build output folder (created if not already existing, not used if `--serve`).")
+	pflag.StringVarP(&outdir, "out-dir", "o", "", "The build output folder (created if not already existing, not used if --serve).")
 
-	pflag.BoolVar(&attribute, "gm-attribute", true, "GoldMark option: allows to define attributes on some elements.")
-	pflag.BoolVar(&autoHeadingId, "gm-auto-heading-id", true, "GoldMark option: enables auto heading ids.")
-	pflag.BoolVar(&definitionList, "gm-definition-list", true, "GoldMark option: enables definition lists.")
-	pflag.BoolVar(&footnote, "gm-footnote", true, "GoldMark option: enables footnotes.")
-	pflag.BoolVar(&linkify, "gm-linkify", true, "GoldMark option: activates auto links.")
-	pflag.BoolVar(&strikethrough, "gm-strikethrough", true, "GoldMark option: enables strike through.")
-	pflag.BoolVar(&table, "gm-table", true, "GoldMark option: enables tables.")
-	pflag.BoolVar(&taskList, "gm-task-list", true, "GoldMark option: enables task lists.")
-	pflag.BoolVar(&typographer, "gm-typographer", true, "GoldMark option: activate punctuations substitution with typographic entities.")
-	pflag.BoolVar(&unsafe, "gm-unsafe", true, "GoldMark option: enables raw html.")
+	pflag.BoolVar(&attribute, "gm-attribute", true, "goldmark option: allows to define attributes on some elements.")
+	pflag.BoolVar(&autoHeadingId, "gm-auto-heading-id", true, "goldmark option: enables auto heading ids.")
+	pflag.BoolVar(&definitionList, "gm-definition-list", true, "goldmark option: enables definition lists.")
+	pflag.BoolVar(&footnote, "gm-footnote", true, "goldmark option: enables footnotes.")
+	pflag.BoolVar(&linkify, "gm-linkify", true, "goldmark option: activates auto links.")
+	pflag.BoolVar(&strikethrough, "gm-strikethrough", true, "goldmark option: enables strike through.")
+	pflag.BoolVar(&table, "gm-table", true, "goldmark option: enables tables.")
+	pflag.BoolVar(&taskList, "gm-task-list", true, "goldmark option: enables task lists.")
+	pflag.BoolVar(&typographer, "gm-typographer", true, "goldmark option: activate punctuations substitution with typographic entities.")
+	pflag.BoolVar(&unsafe, "gm-unsafe", true, "goldmark option: enables raw html.")
 
-	pflag.BoolVar(&hardWraps, "gm-hard-wraps", false, "GoldMark option: render newlines as <br>.")
-	pflag.BoolVar(&xhtml, "gm-xhtml", false, "GoldMark option: render as XHTML.")
+	pflag.BoolVar(&hardWraps, "gm-hard-wraps", false, "goldmark option: render newlines as <br>.")
+	pflag.BoolVar(&xhtml, "gm-xhtml", false, "goldmark option: render as XHTML.")
 
 	pflag.BoolVar(&localmdlinks, "links-md2html", true, "Replace .md with .html in links to local files (not used if `--serve`).")
 
-	pflag.BoolVarP(&quiet, "quiet", "q", false, "No errors, no info is printed. Return error code is still available.")
+	pflag.BoolVarP(&quiet, "quiet", "q", false, "No errors and no info is printed. Return error code is still available.")
 	pflag.BoolVarP(&showhelp, "help", "h", false, "Print this help message.")
 	// keep the flags order
 	pflag.CommandLine.SortFlags = false
@@ -194,7 +194,7 @@ func setServeParameters() {
 	liveupdate = true
 }
 
-// setBuildParameters get all paterns and create (if necessary) the "out dir".
+// setBuildParameters get all patterns and create (if necessary) the "out dir".
 func setBuildParameters() {
 	// get the positional parameters
 	inpatterns = pflag.Args()
@@ -207,7 +207,7 @@ func setBuildParameters() {
 	// check the "out dir"
 	if outdir != "" {
 		if os.MkdirAll(outdir, os.ModePerm) != nil {
-			check(fmt.Errorf("The specifide output folder '%s' is not reachable.", outdir))
+			check(fmt.Errorf("The specified output folder '%s' is not reachable.", outdir))
 		}
 	}
 }
