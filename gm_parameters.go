@@ -12,6 +12,7 @@ import (
 	chroma "github.com/alecthomas/chroma/formatters/html"
 	"github.com/spf13/pflag"
 	"github.com/yuin/goldmark"
+	emoji "github.com/yuin/goldmark-emoji"
 	highlighting "github.com/yuin/goldmark-highlighting"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
@@ -63,6 +64,7 @@ var (
 	table          bool
 	taskList       bool
 	typographer    bool
+	emojis         bool
 	unsafe         bool
 	autoHeadingId  bool
 	hardWraps      bool
@@ -75,7 +77,6 @@ var (
 	// - Mark
 	// - Inline footnote
 	// - Compact style definition lists
-	// - Emojis
 	// - Abbreviations
 	// - Math rendering
 
@@ -110,6 +111,7 @@ func SetParameters() {
 	pflag.BoolVar(&table, "gm-table", true, "goldmark option: enables tables.")
 	pflag.BoolVar(&taskList, "gm-task-list", true, "goldmark option: enables task lists.")
 	pflag.BoolVar(&typographer, "gm-typographer", true, "goldmark option: activate punctuations substitution with typographic entities.")
+	pflag.BoolVar(&emojis, "gm-emoji", true, "goldmark option: enables (github) emojis 💪.")
 	pflag.BoolVar(&unsafe, "gm-unsafe", true, "goldmark option: enables raw html.")
 
 	pflag.BoolVar(&hardWraps, "gm-hard-wraps", false, "goldmark option: render newlines as <br>.")
@@ -254,6 +256,9 @@ func setGoldMark() {
 	}
 	if typographer {
 		extensions = append(extensions, extension.Typographer)
+	}
+	if emojis {
+		extensions = append(extensions, emoji.Emoji)
 	}
 	if unsafe {
 		rendererOptions = append(rendererOptions, html.WithUnsafe())
