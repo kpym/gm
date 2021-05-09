@@ -26,13 +26,21 @@ func help() {
 	var out = pflag.CommandLine.Output()
 	// var out = os.Stderr
 	// write the help message
-	fmt.Fprintf(out, "gm (version: %s): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark.\n\n", version)
-	fmt.Fprintf(out, "Usage: gm [options] (file.md|file pattern|stdin)+.\n\n")
-	fmt.Fprintf(out, "  If not serving (no `--serve` or `-s` option is used):\n")
-	fmt.Fprintf(out, "  - if file pattern is used, only the matched .md files are used;\n")
-	fmt.Fprintf(out, "  - the .md files are converted to .html with the same name;\n")
-	fmt.Fprintf(out, "  - if the .html file exists it is overwritten.\n\n")
-	fmt.Fprintf(out, "  The available options are:\n\n")
+	header := `gm (version: %s): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark.
+
+  If not serving (no '--serve' or '-s' option is used):
+  - the .md files are converted and saved as .html with the same base name;
+  - if the .html file exists it is overwritten;
+  - 'stdin' in converted to 'stdout';
+  - when a pattern is used, only the matched .md files are considered.
+
+  When serving (with '--serve' or '-s' option):
+  - the .md files are converted and served as html;
+  - all other files are staticly served;
+  - nothing is written on the disk.
+
+`
+	fmt.Fprintf(out, header, version)
 	pflag.PrintDefaults()
 	fmt.Fprintf(out, "\n")
 }
@@ -100,7 +108,8 @@ func SetParameters() {
 	pflag.StringVarP(&title, "title", "t", "", "The default page title. Used if no h1 is found in the .md file.")
 	pflag.StringVar(&htmlshell, "html", "", "The html template (file or string).")
 
-	pflag.StringVarP(&outdir, "out-dir", "o", "", "The build output folder (created if not already existing, not used if --serve).")
+	pflag.StringVarP(&outdir, "out-dir", "o", "", "The build output folder (created if not already existing, not used when serving).")
+	pflag.BoolVar(&localmdlinks, "links-md2html", true, "Replace .md with .html in links to local files (not used when serving).")
 
 	pflag.BoolVar(&attribute, "gm-attribute", true, "goldmark option: allows to define attributes on some elements.")
 	pflag.BoolVar(&autoHeadingId, "gm-auto-heading-id", true, "goldmark option: enables auto heading ids.")
@@ -119,8 +128,6 @@ func SetParameters() {
 
 	pflag.StringVar(&chromatheme, "gm-highlighting", "github", "goldmark option: the code highlighting theme (empty string to disable).\nCheck github.com/alecthomas/chroma for theme names.")
 	pflag.BoolVar(&chromalines, "gm-line-numbers", false, "goldmark option: enable line numering for code highlighting.")
-
-	pflag.BoolVar(&localmdlinks, "links-md2html", true, "Replace .md with .html in links to local files (not used if `--serve`).")
 
 	pflag.BoolVarP(&quiet, "quiet", "q", false, "No errors and no info is printed. Return error code is still available.")
 	pflag.BoolVarP(&showhelp, "help", "h", false, "Print this help message.")
