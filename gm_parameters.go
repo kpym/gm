@@ -9,8 +9,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	chroma "github.com/alecthomas/chroma/formatters/html"
 	"github.com/spf13/pflag"
 	"github.com/yuin/goldmark"
+	highlighting "github.com/yuin/goldmark-highlighting"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer"
@@ -65,6 +67,8 @@ var (
 	autoHeadingId  bool
 	hardWraps      bool
 	xhtml          bool
+	chromatheme    string
+	chromalines    bool
 	// The following goldmark options are missing:
 	// - Subscript / Superscript
 	// - Ins
@@ -73,7 +77,6 @@ var (
 	// - Compact style definition lists
 	// - Emojis
 	// - Abbreviations
-	// - Code highlighting
 	// - Math rendering
 
 	mdParser goldmark.Markdown
@@ -111,6 +114,9 @@ func SetParameters() {
 
 	pflag.BoolVar(&hardWraps, "gm-hard-wraps", false, "goldmark option: render newlines as <br>.")
 	pflag.BoolVar(&xhtml, "gm-xhtml", false, "goldmark option: render as XHTML.")
+
+	pflag.StringVar(&chromatheme, "gm-highlighting", "github", "goldmark option: the code highlighting theme (empty string to disable).\nCheck github.com/alecthomas/chroma for theme names.")
+	pflag.BoolVar(&chromalines, "gm-line-numbers", false, "goldmark option: enable line numering for code highlighting.")
 
 	pflag.BoolVar(&localmdlinks, "links-md2html", true, "Replace .md with .html in links to local files (not used if `--serve`).")
 
@@ -257,6 +263,16 @@ func setGoldMark() {
 	}
 	if xhtml {
 		rendererOptions = append(rendererOptions, html.WithXHTML())
+	}
+
+	if chromatheme != "" {
+		var chromaOptions []chroma.Option
+		chromaOptions = append(chromaOptions, chroma.WithLineNumbers(chromalines))
+
+		extensions = append(extensions, highlighting.NewHighlighting(
+			highlighting.WithStyle(chromatheme),
+			highlighting.WithFormatOptions(chromaOptions...),
+		))
 	}
 
 	mdParser = goldmark.New(
