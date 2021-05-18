@@ -8,26 +8,14 @@ before:
     # you may remove this if you don't need go generate
     - go generate ./...
 builds:
-  # windows and linux use upx compression
-  - id: gm1
-    env:
+  - env:
       - CGO_ENABLED=0
     goos:
       - linux
       - windows
-    ldflags:
-     - -s -w -X main.version={{.Version}}
-    hooks:
-      post:
-       - upx "{{ .Path }}"
-  # mac builds on github has problems with upx compression
-  - id: gm2
-    env:
-      - CGO_ENABLED=0
-    goos:
       - darwin
     ldflags:
-     - -s -w -X main.version={{.Version}}
+     - -s -w -X main.version={{ .Version }}
 archives:
   - replacements:
       darwin: MacOS
