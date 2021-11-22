@@ -1,12 +1,11 @@
 # This is an example goreleaser.yaml file with some sane defaults.
 # Make sure to check the documentation at http://goreleaser.com
 project_name: gm
+env:
+  - GOLDMARK_VERSION={{ if index .Env "GOLDMARK_VERSION" }}{{ .Env.GOLDMARK_VERSION }}{{ else }}--{{ end }}
 before:
   hooks:
-    # You may remove this if you don't use go modules.
     - go mod download
-    # you may remove this if you don't need go generate
-    - go generate ./...
 builds:
   - env:
       - CGO_ENABLED=0
@@ -15,7 +14,7 @@ builds:
       - windows
       - darwin
     ldflags:
-     - -s -w -X main.version={{ .Version }}
+     - "-s -w -X 'main.version={{ .Version }}' -X 'main.goldmarkVersion={{ .Env.GOLDMARK_VERSION }}'"
 archives:
   - replacements:
       darwin: MacOS

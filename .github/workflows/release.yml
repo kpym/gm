@@ -25,6 +25,9 @@ jobs:
         with:
           go-version: 1.17
       -
+        name: Set env
+        run : echo "GOLDMARK_VERSION=$(go list -m -f '{{ .Version }}' github.com/yuin/goldmark)" >> $GITHUB_ENV
+      -
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
