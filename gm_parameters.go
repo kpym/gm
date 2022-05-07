@@ -31,7 +31,7 @@ func help() {
   If not serving (no '--serve' or '-s' option is used):
   - the .md files are converted and saved as .html with the same base name;
   - if the .html file exists it is overwritten;
-  - 'stdin' in converted to 'stdout';
+  - 'stdin' is converted to 'stdout';
   - when a pattern is used, only the matched .md files are considered.
 
   When serving (with '--serve' or '-s' option):
