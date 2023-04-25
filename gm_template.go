@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "embed"
+  _ "embed"
 )
 
 // defaultHTMLTemplate is the default value for `html` flag
@@ -17,17 +17,23 @@ var defaultHTMLTemplate string = `<!DOCTYPE html>
     <title>{{.}}</title>
     {{- end }}
   </head>
-	<body>
-		<article class="markdown-body">
+  <body>
+    <article class="markdown-body">
 {{.html}}
-		</article>
-		{{- if .liveupdate }}
-		<script src="http://livejs.com/live.js#html,css"></script>
-		{{- end }}
+    </article>
+    {{- if .liveupdate }}
+    <script src="live.js#html,css"></script>
+    {{- end }}
   </body>
 </html>
 `
 
 // the favicon image for all served pages
+//
 //go:embed md.png
 var favIcon []byte
+
+// the favicon image for all served pages
+//
+//go:embed live.js
+var livejs []byte
