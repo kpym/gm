@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/kpym/gm/internal/browser"
@@ -27,31 +27,6 @@ func availablePort() (port string) {
 	return port
 }
 
-// exit is a shared variable used to stop the server.
-type exit struct {
-	// Locker is used to prevent concurrent access to the exit variable.
-	Locker sync.RWMutex
-	do     bool
-}
-
-func (e *exit) no() {
-	e.Locker.Lock()
-	e.do = false
-	e.Locker.Unlock()
-}
-
-func (e *exit) yes() {
-	e.Locker.Lock()
-	e.do = true
-	e.Locker.Unlock()
-}
-
-func (e *exit) isYes() bool {
-	e.Locker.RLock()
-	defer e.Locker.RUnlock()
-	return e.do
-}
-
 // serveFiles serve the local folder `serveDir`.
 // If an .md (or corresponding .html) file is requested it is compiled and send as html.
 func serveFiles() {
@@ -59,11 +34,11 @@ func serveFiles() {
 	// variables for exit on idle (for 2 seconds)
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
-	exit := exit{} // the initial value is false
+	var exit atomic.Bool
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// say thet we are alive
-		exit.no()
+		exit.Store(false)
 		// how should I print the info?
 		filename := filepath.Join(serveDir, r.URL.Path)
 		newMethodPath := fmt.Sprintf("\n%s '%s':", r.Method, r.URL.Path)
@@ -119,11 +94,10 @@ func serveFiles() {
 			for {
 				// wait for 2 seconds
 				<-ticker.C
-				if exit.isYes() {
+				if exit.Swap(true) { // if exit was already true, exit
 					info("\nNo request for 2 seconds. Exit.\n\n")
 					mainEnd()
 				}
-				exit.yes() // should be rest to no by the next request in less than 2 seconds
 			}
 		}()
 	}
