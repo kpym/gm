@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/kpym/gm/internal/browser"
@@ -27,18 +28,51 @@ func availablePort() (port string) {
 	return port
 }
 
+// exit is a shared variable used to stop the server.
+type exit struct {
+	// Locker is used to prevent concurrent access to the exit variable.
+	Locker sync.RWMutex
+	do     bool
+}
+
+func (e *exit) no() {
+	e.Locker.Lock()
+	e.do = false
+	e.Locker.Unlock()
+}
+
+func (e *exit) yes() {
+	e.Locker.Lock()
+	e.do = true
+	e.Locker.Unlock()
+}
+
+func (e *exit) isYes() bool {
+	e.Locker.RLock()
+	defer e.Locker.RUnlock()
+	return e.do
+}
+
 // serveFiles serve the local folder `serveDir`.
 // If an .md (or corresponding .html) file is requested it is compiled and send as html.
 func serveFiles() {
 	var lastMethodPath string
+	// variables for exit on idle (for 2 seconds)
+	ticker := time.NewTicker(2 * time.Second)
+	defer ticker.Stop()
+	exit := exit{} // the initial value is false
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// say thet we are alive
+		exit.no()
+		// how should I print the info?
 		filename := filepath.Join(serveDir, r.URL.Path)
 		newMethodPath := fmt.Sprintf("\n%s '%s':", r.Method, r.URL.Path)
 		if newMethodPath != lastMethodPath {
 			lastMethodPath = newMethodPath
 			info(newMethodPath)
 		}
+		// serve the file
 		if strings.HasSuffix(filename, ".html") {
 			filename = filename[0:len(filename)-5] + ".md"
 		}
@@ -78,6 +112,22 @@ func serveFiles() {
 		w.Header().Set("Cache-Control", "no-store")
 		http.FileServer(http.Dir(serveDir)).ServeHTTP(w, r)
 	})
+
+	if liveupdate {
+		// start the exit timer
+		// if no request is received in 2 seconds, exit
+		go func() {
+			for {
+				// wait for 2 seconds
+				<-ticker.C
+				if exit.isYes() {
+					info("\nNo request for 2 seconds. Exit.\n\n")
+					os.Exit(0)
+				}
+				exit.yes() // should be rest to no by the next request in less than 2 seconds
+			}
+		}()
+	}
 
 	port := availablePort()
 	info("start serving '%s' folder to localhost:%s.\n", serveDir, port)
