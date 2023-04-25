@@ -35,6 +35,7 @@ func serveFiles() {
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
 	var exit atomic.Bool
+	var livejsactive atomic.Bool
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// say thet we are alive
@@ -51,6 +52,7 @@ func serveFiles() {
 			filename = filename[0:len(filename)-5] + ".md"
 		}
 		if strings.HasSuffix(filename, "md") {
+			livejsactive.Store(true)
 			if r.Method == "HEAD" {
 				info(".")
 				if fstat, err := os.Stat(filename); err == nil {
@@ -83,6 +85,7 @@ func serveFiles() {
 			return
 		}
 		info(" serve raw file.")
+		livejsactive.Store(false)
 		w.Header().Set("Cache-Control", "no-store")
 		http.FileServer(http.Dir(serveDir)).ServeHTTP(w, r)
 	})
@@ -94,7 +97,9 @@ func serveFiles() {
 			for {
 				// wait for 2 seconds
 				<-ticker.C
-				if exit.Swap(true) { // if exit was already true, exit
+				// check if the last request was more than 2 seconds ago
+				// and if it was for non static content, so that live.js should be active
+				if exit.Swap(true) && livejsactive.Load() {
 					info("\nNo request for 2 seconds. Exit.\n\n")
 					mainEnd()
 				}

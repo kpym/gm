@@ -87,7 +87,7 @@ After cloning this repo you can compile the sources with [goreleaser](https://gi
 
 ```
 git clone https://github.com/kpym/gm.git .
-goreleaser --snapshot --skip-publish --rm-dist
+goreleaser --snapshot --skip-publish --clean
 ```
 
 You will find the resulting binaries in the `dist/` sub-folder.
