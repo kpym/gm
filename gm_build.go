@@ -2,7 +2,6 @@ package main
 
 import (
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,7 +26,7 @@ func buildMd(infile string) {
 		dir = "."
 	}
 	// read the input
-	markdown, err := ioutil.ReadAll(input)
+	markdown, err := io.ReadAll(input)
 	check(err, "Problem reading the markdown.")
 
 	//compile the input
@@ -45,7 +44,7 @@ func buildMd(infile string) {
 		if os.MkdirAll(filepath.Dir(outfile), os.ModePerm) != nil {
 			check(err, "Problem to reach/create folder:", filepath.Dir(outfile))
 		}
-		err = ioutil.WriteFile(outfile, html, 0644)
+		err = os.WriteFile(outfile, html, 0644)
 		check(err, "Problem modifying", outfile)
 	}
 }

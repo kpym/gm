@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -157,7 +156,7 @@ func SetParameters() {
 		css = "https://kpym.github.io/markdown-css/" + css + ".min.css"
 	}
 	// set the template
-	t, err := ioutil.ReadFile(htmlshell)
+	t, err := os.ReadFile(htmlshell)
 	if err == nil {
 		htmlshell = string(t)
 	}
@@ -180,7 +179,7 @@ func SetParameters() {
 // if the positional parameter is like `path/folder/` then `path/folder` is served and `/` is requested
 func setServeParameters() {
 	if pflag.NArg() > 1 {
-		check(errors.New("Only one file or folder can be specified for serving."))
+		check(errors.New("only one file or folder can be specified for serving"))
 	}
 
 	filename := "."
@@ -197,7 +196,7 @@ func setServeParameters() {
 		serveDir = filepath.Dir(filename)
 		serveFile = filepath.Base(filename)
 	default:
-		check(fmt.Errorf("The specified path '%s'is not a file or folder.", filename))
+		check(fmt.Errorf("the specified path '%s'is not a file or folder", filename))
 	}
 
 	// set the default title
@@ -216,20 +215,19 @@ func setBuildParameters() {
 	// check for positional parameters
 	if len(inpatterns) == 0 {
 		pflag.Usage()
-		check(errors.New("At least one input 'file.md', 'p*ttern' or 'stdin' should be provided."))
+		check(errors.New("at least one input 'file.md', 'p*ttern' or 'stdin' should be provided"))
 	}
 
 	// check the "out dir"
 	if outdir != "" {
 		if os.MkdirAll(outdir, os.ModePerm) != nil {
-			check(fmt.Errorf("The specified output folder '%s' is not reachable.", outdir))
+			check(fmt.Errorf("the specified output folder '%s' is not reachable", outdir))
 		}
 	}
 }
 
 // setGoldMark creates a new markdown parser with configuration based on the parameter flags.
-// The code is borrowed from:
-//		https://github.com/gohugoio/hugo/blob/d90e37e0c6e812f9913bf256c9c81aa05b7a08aa/markup/goldmark/convert.go
+// The code is borrowed from: https://github.com/gohugoio/hugo/blob/d90e37e0c6e812f9913bf256c9c81aa05b7a08aa/markup/goldmark/convert.go
 func setGoldMark() {
 	var (
 		rendererOptions []renderer.Option

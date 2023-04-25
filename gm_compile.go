@@ -34,7 +34,7 @@ func compile(markdown []byte) (html []byte, err error) {
 	// convert md to html code
 	err = mdParser.Convert(markdown, &htmlBuf)
 	if err != nil {
-		return nil, fmt.Errorf("Problem parsing markdown code to html with goldmark.\n %w", err)
+		return nil, fmt.Errorf("problem parsing markdown code to html with goldmark: %w", err)
 	}
 
 	// combine the template and the resulting
@@ -49,7 +49,7 @@ func compile(markdown []byte) (html []byte, err error) {
 	htmlBuf.Reset()
 	err = mdTemplate.Execute(&htmlBuf, data)
 	if err != nil {
-		return nil, fmt.Errorf("Problem building HTML from template.\n %w", err)
+		return nil, fmt.Errorf("problem building HTML from template: %w", err)
 	}
 
 	return htmlBuf.Bytes(), nil

@@ -52,7 +52,7 @@ func mainEnd() {
 
 // If we terminate with Ctrl/Cmd-C we call end()
 func catchCtrlC() {
-	c := make(chan os.Signal)
+	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-c

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
@@ -86,7 +85,7 @@ func serveFiles() {
 				}
 				return
 			}
-			if content, err := ioutil.ReadFile(filename); err == nil {
+			if content, err := os.ReadFile(filename); err == nil {
 				if html, err := compile(content); err == nil {
 					info(" serve converted .md file.")
 					w.Write(html)
@@ -122,7 +121,7 @@ func serveFiles() {
 				<-ticker.C
 				if exit.isYes() {
 					info("\nNo request for 2 seconds. Exit.\n\n")
-					os.Exit(0)
+					mainEnd()
 				}
 				exit.yes() // should be rest to no by the next request in less than 2 seconds
 			}
