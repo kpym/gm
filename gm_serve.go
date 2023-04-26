@@ -77,7 +77,7 @@ func serveFiles() {
 			w.Header().Set("Expires", time.Now().Add(24*time.Hour).UTC().Format(http.TimeFormat))
 			w.Write(favIcon)
 			return
-		case "live.js":
+		case "/live.js":
 			info(" serve live.js.")
 			w.Header().Set("Cache-Control", "max-age=86400") // 86400 s = 1 day
 			w.Header().Set("Expires", time.Now().Add(24*time.Hour).UTC().Format(http.TimeFormat))

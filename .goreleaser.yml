@@ -16,7 +16,7 @@ builds:
     ldflags:
      - "-s -w -X 'main.version={{ .Version }}' -X 'main.goldmarkVersion={{ .Env.GOLDMARK_VERSION }}'"
 archives:
-  - 
+  -
     # DEPRECATED: `archives.replacements` should not be used anymore, check https://goreleaser.com/deprecations#archivesreplacements for more info
     # - replacements:
     #     darwin: MacOS

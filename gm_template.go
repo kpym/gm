@@ -33,7 +33,7 @@ var defaultHTMLTemplate string = `<!DOCTYPE html>
 //go:embed md.png
 var favIcon []byte
 
-// the favicon image for all served pages
+// modified live.js script to serve locally
 //
 //go:embed live.js
 var livejs []byte
