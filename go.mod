@@ -5,9 +5,9 @@ go 1.20
 require (
 	github.com/alecthomas/chroma v0.10.0
 	github.com/spf13/pflag v1.0.6-0.20201009195203-85dd5c8bc61c
-	github.com/yuin/goldmark v1.5.4
-	github.com/yuin/goldmark-emoji v1.0.1
+	github.com/yuin/goldmark v1.5.6
+	github.com/yuin/goldmark-emoji v1.0.2
 	github.com/yuin/goldmark-highlighting v0.0.0-20220208100518-594be1970594
 )
 
-require github.com/dlclark/regexp2 v1.4.0 // indirect
+require github.com/dlclark/regexp2 v1.10.0 // indirect
