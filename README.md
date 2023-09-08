@@ -78,7 +78,7 @@ You can download the executable for your platform from the [Releases](https://gi
 #### Using Go
 
 ```
-$ go get github.com/kpym/gm
+$ go install github.com/kpym/gm@latest
 ```
 
 #### Using goreleaser
