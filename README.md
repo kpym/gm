@@ -23,20 +23,21 @@ This tool is a thin wrapper around the [github.com/yuin/goldmark](https://github
 
 ```
 > gm -h
-gm (version: --): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark.
+gm (version: --): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark (versio: --).
 
   If not serving (no '--serve' or '-s' option is used):
   - the .md files are converted and saved as .html with the same base name;
   - if the .html file exists it is overwritten;
-  - 'stdin' in converted to 'stdout';
+  - 'stdin' is converted to 'stdout';
   - when a pattern is used, only the matched .md files are considered.
 
   When serving (with '--serve' or '-s' option):
-  - the .md files are converted and served as html;
+  - the .md files are converted and served as html with live.js (for live updates);
   - all other files are staticly served;
   - nothing is written on the disk.
 
   -s, --serve                    Start serving local .md file(s). No html is saved.
+      --timeout int              Timeout in seconds for stop serving if no (non static) request. Default is 0 (no timeout).
   -c, --css string               A css url or the theme name present in github.com/kpym/markdown-css. (default "github")
   -t, --title string             The default page title. Used if no h1 is found in the .md file.
       --html string              The html template (file or string).
