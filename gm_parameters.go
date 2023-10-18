@@ -34,7 +34,7 @@ func help() {
   - when a pattern is used, only the matched .md files are considered.
 
   When serving (with '--serve' or '-s' option):
-  - the .md files are converted and served as html;
+  - the .md files are converted and served as html with live.js (for live updates);
   - all other files are staticly served;
   - nothing is written on the disk.
 
@@ -49,6 +49,7 @@ var (
 	serve     bool
 	serveDir  string
 	serveFile string
+	timeout   int
 
 	// build flags
 	outdir     string
@@ -102,6 +103,7 @@ var (
 func SetParameters() {
 	pflag.BoolVarP(&serve, "serve", "s", false, "Start serving local .md file(s). No html is saved.")
 	pflag.Lookup("serve").NoOptDefVal = "true"
+	pflag.IntVar(&timeout, "timeout", 0, "Timeout in seconds for stop serving if no (non static) request. Default is 0 (no timeout).")
 
 	pflag.StringVarP(&css, "css", "c", "github", "A css url or the theme name present in github.com/kpym/markdown-css.")
 	pflag.StringVarP(&title, "title", "t", "", "The default page title. Used if no h1 is found in the .md file.")

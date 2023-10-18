@@ -31,15 +31,16 @@ func availablePort() (port string) {
 // If an .md (or corresponding .html) file is requested it is compiled and send as html.
 func serveFiles() {
 	var lastMethodPath string
-	// variables for exit on idle (for 2 seconds)
-	ticker := time.NewTicker(2 * time.Second)
-	defer ticker.Stop()
-	var exit atomic.Bool
-	var livejsactive atomic.Bool
+	var ticker *time.Ticker      // used to exit if no request is received for timeout seconds
+	var exit atomic.Bool         // is set to true on every request and reset to false on every tick of the ticker
+	var livejsactive atomic.Bool // is set to true if the last request was for non static content
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// say thet we are alive
 		exit.Store(false)
+		// by default live.js is active (serving .md or related files)
+		// it is reset to false if the request is for static content later
+		livejsactive.Store(true)
 		// how should I print the info?
 		filename := filepath.Join(serveDir, r.URL.Path)
 		newMethodPath := fmt.Sprintf("\n%s '%s':", r.Method, r.URL.Path)
@@ -49,10 +50,11 @@ func serveFiles() {
 		}
 		// serve the file
 		if strings.HasSuffix(filename, ".html") {
+			// try first to serve the corresponding .md file
+			// if it is not present, serve the .html as static file
 			filename = filename[0:len(filename)-5] + ".md"
 		}
 		if strings.HasSuffix(filename, "md") {
-			livejsactive.Store(true)
 			if r.Method == "HEAD" {
 				info(".")
 				if fstat, err := os.Stat(filename); err == nil {
@@ -85,22 +87,24 @@ func serveFiles() {
 			return
 		}
 		info(" serve raw file.")
-		livejsactive.Store(false)
+		livejsactive.Store(false) // is serving file without live.js
 		w.Header().Set("Cache-Control", "no-store")
 		http.FileServer(http.Dir(serveDir)).ServeHTTP(w, r)
 	})
 
-	if liveupdate {
-		// start the exit timer
-		// if no request is received in 2 seconds, exit
+	// start the exit timer ?
+	if liveupdate && timeout > 0 {
+		// if no livejs request is received in timeout seconds, exit
+		ticker = time.NewTicker(time.Duration(timeout) * time.Second)
+		defer ticker.Stop()
 		go func() {
 			for {
-				// wait for 2 seconds
+				// wait for timeout seconds
 				<-ticker.C
-				// check if the last request was more than 2 seconds ago
+				// check if the last request was more than timeout seconds ago
 				// and if it was for non static content, so that live.js should be active
 				if exit.Swap(true) && livejsactive.Load() {
-					info("\nNo request for 2 seconds. Exit.\n\n")
+					info("\nNo request for %d seconds. Exit.\n\n", timeout)
 					mainEnd()
 				}
 			}
