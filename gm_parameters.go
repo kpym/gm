@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	chroma "github.com/alecthomas/chroma/formatters/html"
+	attributes "github.com/mdigger/goldmark-attributes"
 	"github.com/spf13/pflag"
 	"github.com/yuin/goldmark"
 	emoji "github.com/yuin/goldmark-emoji"
@@ -232,14 +233,12 @@ func setBuildParameters() {
 // The code is borrowed from: https://github.com/gohugoio/hugo/blob/d90e37e0c6e812f9913bf256c9c81aa05b7a08aa/markup/goldmark/convert.go
 func setGoldMark() {
 	var (
+		goldmarkOptions []goldmark.Option
 		rendererOptions []renderer.Option
 		extensions      []goldmark.Extender
 		parserOptions   []parser.Option
 	)
 
-	if attribute {
-		parserOptions = append(parserOptions, parser.WithAttribute())
-	}
 	if autoHeadingId {
 		parserOptions = append(parserOptions, parser.WithAutoHeadingID())
 	}
@@ -267,6 +266,9 @@ func setGoldMark() {
 	if emojis {
 		extensions = append(extensions, emoji.Emoji)
 	}
+	if attribute {
+		goldmarkOptions = append(goldmarkOptions, attributes.Enable)
+	}
 	if unsafe {
 		rendererOptions = append(rendererOptions, html.WithUnsafe())
 	}
@@ -287,17 +289,14 @@ func setGoldMark() {
 		))
 	}
 
-	mdParser = goldmark.New(
-		goldmark.WithExtensions(
-			extensions...,
-		),
-		goldmark.WithParserOptions(
-			parserOptions...,
-		),
-		goldmark.WithRendererOptions(
-			rendererOptions...,
-		),
+	goldmarkOptions = append(
+		goldmarkOptions,
+		goldmark.WithExtensions(extensions...),
+		goldmark.WithParserOptions(parserOptions...),
+		goldmark.WithRendererOptions(rendererOptions...),
 	)
+
+	mdParser = goldmark.New(goldmarkOptions...)
 }
 
 // setTemplate parse the `html` flag to template.

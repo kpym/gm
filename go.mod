@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/alecthomas/chroma v0.10.0
+	github.com/mdigger/goldmark-attributes v0.0.0-20210529130523-52da21a6bf2b
 	github.com/spf13/pflag v1.0.6-0.20201009195203-85dd5c8bc61c
 	github.com/yuin/goldmark v1.5.6
 	github.com/yuin/goldmark-emoji v1.0.2
