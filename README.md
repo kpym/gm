@@ -23,7 +23,7 @@ This tool is a thin wrapper around the [github.com/yuin/goldmark](https://github
 
 ```
 > gm -h
-gm (version: --): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark (versio: --).
+gm (version: 0.15.0): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark (versio: v1.5.6).
 
   If not serving (no '--serve' or '-s' option is used):
   - the .md files are converted and saved as .html with the same base name;
@@ -42,6 +42,7 @@ gm (version: --): a goldmark cli tool which is a thin wrapper around github.com/
   -t, --title string             The default page title. Used if no h1 is found in the .md file.
       --html string              The html template (file or string).
   -o, --out-dir string           The build output folder (created if not already existing, not used when serving).
+      --readme-index             Compile README.md to index.html (not used when serving).
       --links-md2html            Replace .md with .html in links to local files (not used when serving). (default true)
       --gm-attribute             goldmark option: allows to define attributes on some elements. (default true)
       --gm-auto-heading-id       goldmark option: enables auto heading ids. (default true)
