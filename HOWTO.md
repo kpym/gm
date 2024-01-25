@@ -64,7 +64,7 @@ Here is an example of possible `.gitlab-ci.yml`:
 pages:
   image: alpine
   script:
-    - wget -c https://github.com/kpym/gm/releases/download/v0.16.0/gm_0.16.0_Linux_64bit.tar.gz -O - | tar -xz gm
+    - wget -c https://github.com/kpym/gm/releases/download/v0.16.1/gm_0.16.1_Linux_64bit.tar.gz -O - | tar -xz gm
     - ./gm --pages '**/*'
   artifacts:
     paths:

@@ -59,6 +59,21 @@ func buildMd(infile string) {
 	}
 }
 
+var thisExecutable string
+
+func setThisExecutable(cwd string) {
+	var err error
+	thisExecutable, err = filepath.Rel(cwd, filepath.Clean(os.Args[0]))
+	check(err, "Problem getting the current executable.")
+}
+
+// isGM returns true if the path is equal to the current executable
+// path is should be cleaned before calling this function
+func isGM(path string) bool {
+	return path == thisExecutable
+}
+
+// pathHasDot returns true if the path contains a folder or file name starting with a dot
 func pathHasDot(path string) bool {
 	wasSeparator := true
 	for i := 0; i < len(path); i++ {
@@ -72,11 +87,15 @@ func pathHasDot(path string) bool {
 
 // buildFiles convert all .md files verifying one of the patterns to .html
 func buildFiles() {
-	// get the current directory as a filesystem, needed for doublestar.Glob
+	// get the current directory as a filesystem
 	cwd, err := os.Getwd()
 	check(err, "Problem getting the current directory.")
+	// set fs needed for doublestar.Glob
 	dirFS := os.DirFS(cwd)
+	// check if we need to move files
 	movefiles := move && filepath.Clean(outdir) != filepath.Clean(cwd)
+	// set the current executable (to skip if necessary)
+	setThisExecutable(cwd)
 	// check all patterns
 	for _, pattern := range inpatterns {
 		info("Looking for '%s'.\n", pattern)
@@ -95,7 +114,7 @@ func buildFiles() {
 		}
 		for _, infile := range allfiles {
 			infile = filepath.Clean(infile)
-			if skipdot && pathHasDot(infile) {
+			if isGM(infile) || skipdot && pathHasDot(infile) {
 				info("  Skipping %s...\n", infile)
 				continue
 			}
