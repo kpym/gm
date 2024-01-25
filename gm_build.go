@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/bmatcuk/doublestar/v4"
 )
 
 // buildMd compiles the infile (xxx.md | stdin) to outfile (xxx.html | stdout)
@@ -59,9 +61,13 @@ func buildFiles() {
 			buildMd("")
 			continue
 		}
+		// get the current directory as a filesystem, needed for doublestar.Glob
+		cwd, err := os.Getwd()
+		check(err, "Problem getting the current directory.")
+		dirFS := os.DirFS(cwd)
 		// look for all files with the given patterns
 		// but build only .md ones
-		allfiles, err := filepath.Glob(pattern)
+		allfiles, err := doublestar.Glob(dirFS, pattern, doublestar.WithFilesOnly(), doublestar.WithNoFollow())
 		check(err, "Problem looking for file pattern:", pattern)
 		if len(allfiles) == 0 {
 			info("No files found.\n")
