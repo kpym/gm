@@ -23,13 +23,14 @@ This tool is a thin wrapper around the [github.com/yuin/goldmark](https://github
 
 ```
 > gm -h
-gm (version: 0.15.0): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark (versio: v1.5.6).
+gm (version: 0.16.0): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark (versio: v1.5.6).
 
   If not serving (no '--serve' or '-s' option is used):
   - the .md files are converted and saved as .html with the same base name;
-  - if the .html file exists it is overwritten;
+  - if the corresponding .html file already exists, it is overwritten;
   - 'stdin' is converted to 'stdout';
   - when a pattern is used, only the matched .md files are considered.
+  - the pattern can contain '*', '?', the '**' glob pattern, '[class]' and {alt1,...} alternatives. 
 
   When serving (with '--serve' or '-s' option):
   - the .md files are converted and served as html with live.js (for live updates);
@@ -43,6 +44,9 @@ gm (version: 0.15.0): a goldmark cli tool which is a thin wrapper around github.
       --html string              The html template (file or string).
   -o, --out-dir string           The build output folder (created if not already existing, not used when serving).
       --readme-index             Compile README.md to index.html (not used when serving).
+      --move-no-md               Move all non markdown non dot files to the output folder (not used when serving).
+      --skip-dot                 Skip dot files (not used when serving).
+      --pages                    Shortcut for --outdir='public' --readme-index --move-no-md --skip-dot (not used when serving).
       --links-md2html            Replace .md with .html in links to local files (not used when serving). (default true)
       --gm-attribute             goldmark option: allows to define attributes on some elements. (default true)
       --gm-auto-heading-id       goldmark option: enables auto heading ids. (default true)

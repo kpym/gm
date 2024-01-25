@@ -61,15 +61,11 @@ the served folder is `some/folder/` and the requested url is `localhost:8080/fil
 Here is an example of possible `.gitlab-ci.yml`:
 
 ```yaml
-variables:
-  DOCKER_DRIVER: overlay2 # for speed up
 pages:
   image: alpine
   script:
-    - wget -c https://github.com/kpym/gm/releases/download/v0.7.0/gm_0.7.0_Linux_64bit.tar.gz -O - | tar -xz gm
-    - ./gm '*.md' -o public
-    - mv public/README.html public/index.html
-    # add here more commands to move files to public
+    - wget -c https://github.com/kpym/gm/releases/download/v0.16.0/gm_0.16.0_Linux_64bit.tar.gz -O - | tar -xz gm
+    - ./gm --pages '**/*'
   artifacts:
     paths:
       - public

@@ -59,8 +59,24 @@ func buildMd(infile string) {
 	}
 }
 
+func pathHasDot(path string) bool {
+	wasSeparator := true
+	for i := 0; i < len(path); i++ {
+		if path[i] == '.' && wasSeparator {
+			return true
+		}
+		wasSeparator = os.IsPathSeparator(path[i])
+	}
+	return false
+}
+
 // buildFiles convert all .md files verifying one of the patterns to .html
 func buildFiles() {
+	// get the current directory as a filesystem, needed for doublestar.Glob
+	cwd, err := os.Getwd()
+	check(err, "Problem getting the current directory.")
+	dirFS := os.DirFS(cwd)
+	movefiles := move && filepath.Clean(outdir) != filepath.Clean(cwd)
 	// check all patterns
 	for _, pattern := range inpatterns {
 		info("Looking for '%s'.\n", pattern)
@@ -69,10 +85,6 @@ func buildFiles() {
 			buildMd("")
 			continue
 		}
-		// get the current directory as a filesystem, needed for doublestar.Glob
-		cwd, err := os.Getwd()
-		check(err, "Problem getting the current directory.")
-		dirFS := os.DirFS(cwd)
 		// look for all files with the given patterns
 		// but build only .md ones
 		allfiles, err := doublestar.Glob(dirFS, pattern, doublestar.WithFilesOnly(), doublestar.WithNoFollow())
@@ -82,9 +94,24 @@ func buildFiles() {
 			continue
 		}
 		for _, infile := range allfiles {
+			infile = filepath.Clean(infile)
+			if skipdot && pathHasDot(infile) {
+				info("  Skipping %s...\n", infile)
+				continue
+			}
 			if strings.HasSuffix(infile, ".md") {
 				info("  Converting %s...", infile)
 				buildMd(infile)
+				info("done.\n")
+			} else if movefiles && !strings.HasPrefix(infile, outdir) {
+				// move the file if it is not markdown and not already in the output folder
+				info("  Moving %s...", infile)
+				outfile := filepath.Join(outdir, infile)
+				if os.MkdirAll(filepath.Dir(outfile), os.ModePerm) != nil {
+					check(err, "Problem to reach/create folder:", filepath.Dir(outfile))
+				}
+				err := os.Rename(infile, outfile)
+				check(err, "Problem moving", infile)
 				info("done.\n")
 			}
 		}

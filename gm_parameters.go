@@ -56,6 +56,9 @@ var (
 	outdir     string
 	inpatterns []string
 	readme     bool
+	move       bool
+	skipdot    bool
+	pages      bool
 
 	// template flags
 	css        string
@@ -113,6 +116,9 @@ func SetParameters() {
 
 	pflag.StringVarP(&outdir, "out-dir", "o", "", "The build output folder (created if not already existing, not used when serving).")
 	pflag.BoolVar(&readme, "readme-index", false, "Compile README.md to index.html (not used when serving).")
+	pflag.BoolVar(&move, "move-no-md", false, "Move all non markdown non dot files to the output folder (not used when serving).")
+	pflag.BoolVar(&skipdot, "skip-dot", false, "Skip dot files (not used when serving).")
+	pflag.BoolVar(&pages, "pages", false, "Shortcut for --outdir='public' --readme-index --move-no-md --skip-dot (not used when serving).")
 	pflag.BoolVar(&localmdlinks, "links-md2html", true, "Replace .md with .html in links to local files (not used when serving).")
 
 	pflag.BoolVar(&attribute, "gm-attribute", true, "goldmark option: allows to define attributes on some elements.")
@@ -167,6 +173,16 @@ func SetParameters() {
 	}
 	if htmlshell == "" {
 		htmlshell = defaultHTMLTemplate
+	}
+
+	//set flags from shortcuts
+	if pages {
+		if outdir == "" {
+			outdir = "public"
+		}
+		readme = true
+		move = true
+		skipdot = true
 	}
 
 	if serve {
