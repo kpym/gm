@@ -42,7 +42,15 @@ func buildMd(infile string) {
 	if infile == "" {
 		os.Stdout.Write(html)
 	} else {
-		outfile := filepath.Join(outdir, infile[:len(infile)-3]+".html")
+		var outfile string
+
+		if readme && strings.ToLower(filepath.Base(infile)) == "readme.md" {
+			// if it is a README.md file, we want to name it index.html
+			outfile = filepath.Join(outdir, infile[:len(infile)-9]+"index.html")
+		} else {
+			// otherwise we just change the extension
+			outfile = filepath.Join(outdir, infile[:len(infile)-3]+".html")
+		}
 		if os.MkdirAll(filepath.Dir(outfile), os.ModePerm) != nil {
 			check(err, "Problem to reach/create folder:", filepath.Dir(outfile))
 		}

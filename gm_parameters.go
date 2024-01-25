@@ -55,6 +55,7 @@ var (
 	// build flags
 	outdir     string
 	inpatterns []string
+	readme     bool
 
 	// template flags
 	css        string
@@ -111,6 +112,7 @@ func SetParameters() {
 	pflag.StringVar(&htmlshell, "html", "", "The html template (file or string).")
 
 	pflag.StringVarP(&outdir, "out-dir", "o", "", "The build output folder (created if not already existing, not used when serving).")
+	pflag.BoolVar(&readme, "readme-index", false, "Compile README.md to index.html (not used when serving).")
 	pflag.BoolVar(&localmdlinks, "links-md2html", true, "Replace .md with .html in links to local files (not used when serving).")
 
 	pflag.BoolVar(&attribute, "gm-attribute", true, "goldmark option: allows to define attributes on some elements.")
