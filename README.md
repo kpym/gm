@@ -23,14 +23,13 @@ This tool is a thin wrapper around the [github.com/yuin/goldmark](https://github
 
 ```
 > gm -h
-gm (version: 0.16.0): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark (versio: v1.5.6).
+gm (version: 0.17.0): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark (versio: v1.5.6).
 
   If not serving (no '--serve' or '-s' option is used):
   - the .md files are converted and saved as .html with the same base name;
-  - if the corresponding .html file already exists, it is overwritten;
+  - if the .html file exists it is overwritten;
   - 'stdin' is converted to 'stdout';
   - when a pattern is used, only the matched .md files are considered.
-  - the pattern can contain '*', '?', the '**' glob pattern, '[class]' and {alt1,...} alternatives. 
 
   When serving (with '--serve' or '-s' option):
   - the .md files are converted and served as html with live.js (for live updates);
@@ -40,7 +39,7 @@ gm (version: 0.16.0): a goldmark cli tool which is a thin wrapper around github.
   -s, --serve                    Start serving local .md file(s). No html is saved.
       --timeout int              Timeout in seconds for stop serving if no (non static) request. Default is 0 (no timeout).
   -c, --css string               A css url or the theme name present in github.com/kpym/markdown-css. (default "github")
-  -t, --title string             The default page title. Used if no h1 is found in the .md file.
+  -t, --title string             The page title. If empty, search for <h1> in the resulting html.
       --html string              The html template (file or string).
   -o, --out-dir string           The build output folder (created if not already existing, not used when serving).
       --readme-index             Compile README.md to index.html (not used when serving).
@@ -66,7 +65,6 @@ gm (version: 0.16.0): a goldmark cli tool which is a thin wrapper around github.
       --gm-line-numbers          goldmark option: enable line numering for code highlighting.
   -q, --quiet                    No errors and no info is printed. Return error code is still available.
   -h, --help                     Print this help message.
-
 ```
 
 ### How to
