@@ -59,6 +59,19 @@ func buildMd(infile string) {
 	}
 }
 
+func pathFirstPart(path string) string {
+	i := 0
+	for ; i < len(path); i++ {
+		if os.IsPathSeparator(path[i]) {
+			break
+		}
+	}
+	if i == len(path) {
+		return path + string(os.PathSeparator)
+	}
+	return path[:i+1]
+}
+
 func pathHasDot(path string) bool {
 	wasSeparator := true
 	for i := 0; i < len(path); i++ {
@@ -72,12 +85,25 @@ func pathHasDot(path string) bool {
 
 // buildFiles convert all .md files verifying one of the patterns to .html
 func buildFiles() {
-	// get the current directory as a filesystem, needed for doublestar.Glob
+	// get the current directory
 	cwd, err := os.Getwd()
 	check(err, "Problem getting the current directory.")
+	// get the current directory as a filesystem, needed for doublestar.Glob
 	dirFS := os.DirFS(cwd)
-	movefiles := move && filepath.Clean(outdir) != filepath.Clean(cwd)
+	// normalize the output directory and set movefiles and outstart
+	outdir, err = filepath.Abs(outdir)
+	check(err, "Problem getting the absolute path of the output directory.")
+	movefiles := move && outdir != cwd
+	outdir, err = filepath.Rel(cwd, outdir)
+	check(err, "Problem getting the relative path of the output directory.")
+	// get the first part of the relative out path
+	outstart := pathFirstPart(outdir)
 	// check all patterns
+	action := "Building"
+	if movefiles {
+		action = "Building and moving"
+	}
+	info(action+" files from '%s' to '%s'.\n", cwd, outdir)
 	for _, pattern := range inpatterns {
 		info("Looking for '%s'.\n", pattern)
 		// if the input is piped
@@ -99,11 +125,14 @@ func buildFiles() {
 				info("  Skipping %s...\n", infile)
 				continue
 			}
+			if strings.HasPrefix(infile, outstart) {
+				continue
+			}
 			if strings.HasSuffix(infile, ".md") {
 				info("  Converting %s...", infile)
 				buildMd(infile)
 				info("done.\n")
-			} else if movefiles && !strings.HasPrefix(infile, outdir) {
+			} else if movefiles {
 				// move the file if it is not markdown and not already in the output folder
 				info("  Moving %s...", infile)
 				outfile := filepath.Join(outdir, infile)

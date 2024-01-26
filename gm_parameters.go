@@ -237,6 +237,7 @@ func setBuildParameters() {
 
 	// check the "out dir"
 	if outdir != "" {
+		outdir = filepath.Clean(outdir)
 		if os.MkdirAll(outdir, os.ModePerm) != nil {
 			check(fmt.Errorf("the specified output folder '%s' is not reachable", outdir))
 		}
