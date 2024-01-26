@@ -13,7 +13,7 @@ import (
 )
 
 // regexTitle is used to find the first h1 title (if any)
-var regexTitle = regexp.MustCompile(`(?m)<h1[^>]*>([^<]+)</h1>`)
+var regexTitle = regexp.MustCompile(`(?m)<h1[^>]*>(.*?)</h1>`)
 
 // getTitle search for the first h1 title in the markdown
 // if there is no one it returns the default title

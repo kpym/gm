@@ -23,7 +23,7 @@ This tool is a thin wrapper around the [github.com/yuin/goldmark](https://github
 
 ```
 > gm -h
-gm (version: 0.17.1): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark (versio: v1.5.6).
+gm (version: 0.17.2): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark (versio: v1.5.6).
 
   If not serving (no '--serve' or '-s' option is used):
   - the .md files are converted and saved as .html with the same base name;
