@@ -30,9 +30,10 @@ func help() {
 
   If not serving (no '--serve' or '-s' option is used):
   - the .md files are converted and saved as .html with the same base name;
-  - if the .html file exists it is overwritten;
+  - if the corresponding .html file already exists, it is overwritten;
   - 'stdin' is converted to 'stdout';
   - when a pattern is used, only the matched .md files are considered.
+  - the pattern can contain '*', '?', the '**' glob pattern, '[class]' and {alt1,...} alternatives.
 
   When serving (with '--serve' or '-s' option):
   - the .md files are converted and served as html with live.js (for live updates);
