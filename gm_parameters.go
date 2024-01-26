@@ -111,7 +111,7 @@ func SetParameters() {
 	pflag.IntVar(&timeout, "timeout", 0, "Timeout in seconds for stop serving if no (non static) request. Default is 0 (no timeout).")
 
 	pflag.StringVarP(&css, "css", "c", "github", "A css url or the theme name present in github.com/kpym/markdown-css.")
-	pflag.StringVarP(&title, "title", "t", "", "The default page title. Used if no h1 is found in the .md file.")
+	pflag.StringVarP(&title, "title", "t", "", "The page title. If empty, search for <h1> in the resulting html.")
 	pflag.StringVar(&htmlshell, "html", "", "The html template (file or string).")
 
 	pflag.StringVarP(&outdir, "out-dir", "o", "", "The build output folder (created if not already existing, not used when serving).")
@@ -218,11 +218,6 @@ func setServeParameters() {
 		serveFile = filepath.Base(filename)
 	default:
 		check(fmt.Errorf("the specified path '%s'is not a file or folder", filename))
-	}
-
-	// set the default title
-	if title == "" {
-		title = "GoldMark"
 	}
 
 	// insert live.js in the template

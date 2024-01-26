@@ -8,20 +8,22 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/grokify/html-strip-tags-go"
 )
 
 // regexTitle is used to find the first h1 title (if any)
-var regexTitle = regexp.MustCompile(`(?m)^\#\s(.+)$`)
+var regexTitle = regexp.MustCompile(`(?m)<h1[^>]*>([^<]+)</h1>`)
 
 // getTitle search for the first h1 title in the markdown
 // if there is no one it returns the default title
-func getTitle(markdown []byte) string {
-	res := regexTitle.FindSubmatch(markdown)
+func getTitle(htmlStr string) string {
+	res := regexTitle.FindStringSubmatch(htmlStr)
 	if len(res) > 1 {
-		return string(res[1])
+		return strip.StripTags(string(res[1]))
 	}
 
-	return title
+	return "GoldMark"
 }
 
 // compile convert markdown to full html
@@ -36,12 +38,17 @@ func compile(markdown []byte) (html []byte, err error) {
 	if err != nil {
 		return nil, fmt.Errorf("problem parsing markdown code to html with goldmark: %w", err)
 	}
+	htmlStr := htmlBuf.String()
 
 	// combine the template and the resulting
 	var data = make(map[string]template.HTML)
-	data["title"] = template.HTML(getTitle(markdown))
+	if title != "" {
+		data["title"] = template.HTML(title)
+	} else {
+		data["title"] = template.HTML(getTitle(htmlStr))
+	}
 	data["css"] = template.HTML(css)
-	data["html"] = template.HTML(htmlBuf.String())
+	data["html"] = template.HTML(htmlStr)
 	if liveupdate {
 		data["liveupdate"] = template.HTML("yes")
 	}
