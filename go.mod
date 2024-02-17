@@ -7,7 +7,7 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.6.1
 	github.com/grokify/html-strip-tags-go v0.1.0
 	github.com/spf13/pflag v1.0.6-0.20201009195203-85dd5c8bc61c
-	github.com/yuin/goldmark v1.5.6
+	github.com/yuin/goldmark v1.7.0
 	github.com/yuin/goldmark-emoji v1.0.2
 	github.com/yuin/goldmark-highlighting v0.0.0-20220208100518-594be1970594
 )
