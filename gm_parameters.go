@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	chroma "github.com/alecthomas/chroma/formatters/html"
+	chroma "github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/spf13/pflag"
 	"github.com/yuin/goldmark"
 	emoji "github.com/yuin/goldmark-emoji"
-	highlighting "github.com/yuin/goldmark-highlighting"
+	highlighting "github.com/yuin/goldmark-highlighting/v2"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer"
