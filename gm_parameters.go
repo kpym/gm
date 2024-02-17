@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	chroma "github.com/alecthomas/chroma/formatters/html"
-	attributes "github.com/mdigger/goldmark-attributes"
 	"github.com/spf13/pflag"
 	"github.com/yuin/goldmark"
 	emoji "github.com/yuin/goldmark-emoji"
@@ -282,7 +281,7 @@ func setGoldMark() {
 		extensions = append(extensions, emoji.Emoji)
 	}
 	if attribute {
-		goldmarkOptions = append(goldmarkOptions, attributes.Enable)
+		parserOptions = append(parserOptions, parser.WithAttribute())
 	}
 	if unsafe {
 		rendererOptions = append(rendererOptions, html.WithUnsafe())
