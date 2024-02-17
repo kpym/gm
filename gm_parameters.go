@@ -26,7 +26,7 @@ func help() {
 	var out = pflag.CommandLine.Output()
 	// var out = os.Stderr
 	// write the help message
-	header := `gm (version: %s): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark (versio: %s).
+	header := `gm (version: %s): a goldmark cli tool which is a thin wrapper around github.com/yuin/goldmark (version: %s).
 
   If not serving (no '--serve' or '-s' option is used):
   - the .md files are converted and saved as .html with the same base name;
