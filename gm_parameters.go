@@ -61,7 +61,7 @@ var (
 	pages      bool
 
 	// template flags
-	css        string
+	css        []string
 	title      string
 	htmlshell  string
 	liveupdate bool
@@ -110,7 +110,7 @@ func SetParameters() {
 	pflag.Lookup("serve").NoOptDefVal = "true"
 	pflag.IntVar(&timeout, "timeout", 0, "Timeout in seconds for stop serving if no (non static) request. Default is 0 (no timeout).")
 
-	pflag.StringVarP(&css, "css", "c", "github", "A css url or the theme name present in github.com/kpym/markdown-css.")
+	pflag.StringArrayVarP(&css, "css", "c", []string{"github"}, "A css content or url or the theme name present in github.com/kpym/markdown-css. Multiple values are allowed.")
 	pflag.StringVarP(&title, "title", "t", "", "The page title. If empty, search for <h1> in the resulting html.")
 	pflag.StringVar(&htmlshell, "html", "", "The html template (file or string).")
 
@@ -163,8 +163,13 @@ func SetParameters() {
 	}
 
 	// set the css
-	if css != "" && !strings.Contains(css, "/") && !strings.Contains(css, ".") {
-		css = "https://kpym.github.io/markdown-css/" + css + ".min.css"
+	for i, c := range css {
+		// if not empty and not containing '/' or '.' or '{' it should be a theme name
+		if c != "" && !strings.ContainsAny(c, "/.{") {
+			css[i] = "https://kpym.github.io/markdown-css/" + c + ".min.css"
+		} else if strings.Contains(c, "{") {
+			css[i] = "<style>" + c + "</style>"
+		}
 	}
 	// set the template
 	t, err := os.ReadFile(htmlshell)

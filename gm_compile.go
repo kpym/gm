@@ -40,14 +40,27 @@ func compile(markdown []byte) (html []byte, err error) {
 	}
 	htmlStr := htmlBuf.String()
 
-	// combine the template and the resulting
-	var data = make(map[string]template.HTML)
+	// combine the template and the resulting html
+	var data = make(map[string]any)
 	if title != "" {
 		data["title"] = template.HTML(title)
 	} else {
 		data["title"] = template.HTML(getTitle(htmlStr))
 	}
-	data["css"] = template.HTML(css)
+	// the css can be either an url or a code
+	type cssType struct {
+		Url  template.HTML
+		Code template.HTML
+	}
+	cssall := make([]cssType, len(css))
+	for i, c := range css {
+		if strings.HasPrefix(c, "<style>") {
+			cssall[i] = cssType{Code: template.HTML(c)}
+		} else {
+			cssall[i] = cssType{Url: template.HTML(c)}
+		}
+	}
+	data["css"] = cssall
 	data["html"] = template.HTML(htmlStr)
 	if liveupdate {
 		data["liveupdate"] = template.HTML("yes")

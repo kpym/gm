@@ -39,7 +39,7 @@ gm (version: 0.18.3): a goldmark cli tool which is a thin wrapper around github.
 
   -s, --serve                    Start serving local .md file(s). No html is saved.
       --timeout int              Timeout in seconds for stop serving if no (non static) request. Default is 0 (no timeout).
-  -c, --css string               A css url or the theme name present in github.com/kpym/markdown-css. (default "github")
+  -c, --css stringArray          A css content or url or the theme name present in github.com/kpym/markdown-css. Multiple values are allowed. (default [github])
   -t, --title string             The page title. If empty, search for <h1> in the resulting html.
       --html string              The html template (file or string).
   -o, --out-dir string           The build output folder (created if not already existing, not used when serving).

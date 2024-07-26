@@ -1,7 +1,7 @@
 package main
 
 import (
-  _ "embed"
+	_ "embed"
 )
 
 // defaultHTMLTemplate is the default value for `html` flag
@@ -10,8 +10,13 @@ var defaultHTMLTemplate string = `<!DOCTYPE html>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    {{- with .css }}
-    <link rel="stylesheet" type="text/css" href="{{.}}">
+    {{- range .css }}
+      {{- with .Url }}
+        <link rel="stylesheet" type="text/css" href="{{.}}">
+      {{- end }}
+      {{- with .Code }}
+        {{.}}
+      {{- end }}
     {{- end }}
     {{- with .title }}
     <title>{{.}}</title>
