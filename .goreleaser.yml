@@ -1,5 +1,4 @@
-# This is an example goreleaser.yaml file with some sane defaults.
-# Make sure to check the documentation at http://goreleaser.com
+version: 2
 project_name: gm
 env:
   - GOLDMARK_VERSION={{ if index .Env "GOLDMARK_VERSION" }}{{ .Env.GOLDMARK_VERSION }}{{ else }}--{{ end }}
@@ -16,24 +15,15 @@ builds:
     ldflags:
      - "-s -w -X 'main.version={{ .Version }}' -X 'main.goldmarkVersion={{ .Env.GOLDMARK_VERSION }}'"
 archives:
-  -
-    # DEPRECATED: `archives.replacements` should not be used anymore, check https://goreleaser.com/deprecations#archivesreplacements for more info
-    # - replacements:
-    #     darwin: MacOS
-    #     linux: Linux
-    #     windows: Windows
-    #     386: 32bit
-    #     amd64: 64bit
-    # We replace this with the following:
-    name_template: >-
+  - name_template: >-
       {{ .ProjectName }}_{{ .Version }}_
       {{- if eq .Os "darwin" }}MacOS
       {{- else if eq .Os "linux" }}Linux
       {{- else if eq .Os "windows" }}Windows
       {{- else }}{{ .Os }}
       {{- end }}_
-      {{- if eq .Arch "amd64" }}64bit
-      {{- else if eq .Arch "386" }}32bit
+      {{- if eq .Arch "amd64" }}intel64
+      {{- else if eq .Arch "386" }}intel32
       {{- else }}{{ .Arch }}
       {{- end }}
     format_overrides:
@@ -42,7 +32,7 @@ archives:
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "{{ .Tag }}"
+  version_template: "{{ .Tag }}"
 changelog:
   sort: asc
   filters:
