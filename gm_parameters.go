@@ -235,8 +235,14 @@ func setBuildParameters() {
 	inpatterns = pflag.Args()
 	// check for positional parameters
 	if len(inpatterns) == 0 {
-		pflag.Usage()
-		check(errors.New("at least one input 'file.md', 'p*ttern' or 'stdin' should be provided"))
+		// check if there is a pipeed input
+		stat, _ := os.Stdin.Stat()
+		if (stat.Mode() & os.ModeCharDevice) == 0 {
+			inpatterns = append(inpatterns, "stdin")
+		} else {
+			pflag.Usage()
+			check(errors.New("at least one input 'file.md', 'p*ttern' or 'stdin' should be provided"))
+		}
 	}
 
 	// check the "out dir"
