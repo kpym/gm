@@ -24,7 +24,7 @@ All this theme are hosted on GitHub pages of the [markdown-css](https://github.c
 The custom HTML template can contain the following variables:
 
 - `{{.html}}` contains the parsed html code from the markdown;
-- `{{.css}}` contains the css link obtained by the `--css` parameter;
+- `{{.css}}` contains a list of css links or codes obtained from the `--css` parameter;
 - `{{.title}}` contains the first `h1` title, or the `--title` parameter if no `h1` title is present in the code.
 
 ```shell
@@ -34,11 +34,13 @@ The custom HTML template can contain the following variables:
 We can use a file or a string as `--html` parameter (run in bash here):
 
 ```shell
-> echo "*test*" | gm -t "Test page" -c air --html $'title: {{.title}}\ncss: {{.css}}\nhtml: {{.html}}'
+> echo "*test*" | gm -q -t "Test page" -c air --html $'title: {{.title}}\ncss: {{.css}}\nhtml: {{.html}}'
 title: Test page
-css: https://kpym.github.io/markdown-css/air.min.css
+css: [{https://kpym.github.io/markdown-css/air.min.css }]
 html: <p><em>test</em></p>
 ```
+
+The default template is [gm_template.html](gm_template.html).
 
 ## Serve at localhost
 
@@ -64,7 +66,7 @@ Here is an example of possible `.gitlab-ci.yml`:
 pages:
   image: alpine
   script:
-    - wget -c https://github.com/kpym/gm/releases/download/v0.18.3/gm_0.18.3_Linux_64bit.tar.gz -O - | tar -C /usr/local/bin -xz gm
+    - wget -c https://github.com/kpym/gm/releases/download/v0.20.0/gm_0.20.0_Linux_intel64.tar.gz -O - | tar -C /usr/local/bin -xz gm
     - gm --pages '**/*'
   artifacts:
     paths:
