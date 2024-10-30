@@ -140,6 +140,8 @@ Right aligned columns
 
 [Link to .md](test.md)
 
+[Link to tag of .md](test.md#links)
+
 [link with title](http://nodeca.github.io/pica/demo/ "title text!")
 
 Autoconverted link https://github.com/nodeca/pica (enable linkify to see)
