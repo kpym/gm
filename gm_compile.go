@@ -76,18 +76,26 @@ func compile(markdown []byte) (html []byte, err error) {
 }
 
 // regexMdLink is used to identify .md links like href="xxxx.md"
-var regexMdLink = regexp.MustCompile(`href\s*=\s*"([^"]+)\.md"`)
+// and .md links with tags like href="filename.md#tagname"
+var regexMdLink = regexp.MustCompile(`href\s*=\s*"([^"]+)\.md#?[^"]*?"`)
 
-// replaceLinks replace all links like href="path/xxxx.md" to href="path/xxxx.html"
+// replaceLinks replaces all links like href="path/xxxx.md#tag" to href="path/xxxx.html#tag"
 // if the file `path/xxxx.md` exists
 func replaceLinks(html []byte, dir string) []byte {
 	// replace .md links with .html for local files
 	return regexMdLink.ReplaceAllFunc(html, func(s []byte) []byte {
-		filename := strings.Split(string(s), `"`)[1]
-		relname := filepath.Join(dir, filename)
+		fullhref := strings.Split(string(s), `"`)[1]
+		filename := strings.Split(string(fullhref), `#`)[0]
+		relname  := filepath.Join(dir, filename)
 		if _, err := os.Stat(relname); err != nil {
 			return s
 		}
-		return []byte(fmt.Sprintf(`href="%s.html"`, filename[:len(filename)-3]))
+
+		if (fullhref == filename) {
+			return []byte(fmt.Sprintf(`href="%s.html"`, filename[:len(filename)-3]))
+		}
+
+		tagname := strings.Split(fullhref, `#`)[1]
+		return []byte(fmt.Sprintf(`href="%s.html#%s"`, filename[:len(filename)-3], tagname))
 	})
 }
