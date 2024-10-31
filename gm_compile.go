@@ -77,7 +77,7 @@ func compile(markdown []byte) (html []byte, err error) {
 
 // regexMdLink is used to identify .md links like href="xxxx.md"
 // and .md links with tags like href="filename.md#tagname"
-var regexMdLink = regexp.MustCompile(`href\s*=\s*"([^"]+)\.md#?[^"]*?"`)
+var regexMdLink = regexp.MustCompile(`href\s*=\s*"[^"]+?\.md#?[^"]*?"`)
 
 // replaceLinks replaces all links like href="path/xxxx.md#tag" to href="path/xxxx.html#tag"
 // if the file `path/xxxx.md` exists
@@ -86,12 +86,12 @@ func replaceLinks(html []byte, dir string) []byte {
 	return regexMdLink.ReplaceAllFunc(html, func(s []byte) []byte {
 		fullhref := strings.Split(string(s), `"`)[1]
 		filename := strings.Split(string(fullhref), `#`)[0]
-		relname  := filepath.Join(dir, filename)
+		relname := filepath.Join(dir, filename)
 		if _, err := os.Stat(relname); err != nil {
 			return s
 		}
 
-		if (fullhref == filename) {
+		if fullhref == filename {
 			return []byte(fmt.Sprintf(`href="%s.html"`, filename[:len(filename)-3]))
 		}
 
