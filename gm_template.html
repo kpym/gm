@@ -12,6 +12,9 @@
     {{.}}
     {{- end }}
     {{- end }}
+    {{- with .favicon }}
+    <link rel="icon" href="{{.}}">
+    {{- end }}
     {{- with .title }}
     <title>{{.}}</title>
     {{- end }}

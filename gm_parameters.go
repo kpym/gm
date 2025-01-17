@@ -63,6 +63,7 @@ var (
 	// template flags
 	css        []string
 	title      string
+	favicon    string
 	htmlshell  string
 	liveupdate bool
 
@@ -112,6 +113,7 @@ func SetParameters() {
 
 	pflag.StringArrayVarP(&css, "css", "c", []string{"github"}, "A css content or url or the theme name present in github.com/kpym/markdown-css. Multiple values are allowed.")
 	pflag.StringVarP(&title, "title", "t", "", "The page title. If empty, search for <h1> in the resulting html.")
+	pflag.StringVar(&favicon, "icon", "", "The favicon url.")
 	pflag.StringVar(&htmlshell, "html", "", "The html template (file or string).")
 
 	pflag.StringVarP(&outdir, "out-dir", "o", "", "The build output folder (created if not already existing, not used when serving).")

@@ -42,10 +42,15 @@ func compile(markdown []byte) (html []byte, err error) {
 
 	// combine the template and the resulting html
 	var data = make(map[string]any)
+	// the title as parameter or from the first h1
 	if title != "" {
 		data["title"] = template.HTML(title)
 	} else {
 		data["title"] = template.HTML(getTitle(htmlStr))
+	}
+	// the favicon url
+	if favicon != "" {
+		data["favicon"] = template.HTML(favicon)
 	}
 	// the css can be either an url or a code
 	type cssType struct {
