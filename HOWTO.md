@@ -58,6 +58,7 @@ When we specify a file, like in
 ```
 the served folder is `some/folder/` and the requested url is `localhost:8080/file.md` _(if `8080` is available)_.
 
+
 ## Use gm to produce a GitLab pages website
 
 Here is an example of possible `.gitlab-ci.yml`:
@@ -66,9 +67,37 @@ Here is an example of possible `.gitlab-ci.yml`:
 pages:
   image: alpine
   script:
-    - wget -c https://github.com/kpym/gm/releases/download/v0.20.0/gm_0.20.0_Linux_intel64.tar.gz -O - | tar -C /usr/local/bin -xz gm
+    - wget -c https://github.com/kpym/gm/releases/download/v0.23.0/gm_0.23.0_Linux_intel64.tar.gz -O - | tar -C /usr/local/bin -xz gm
     - gm --pages '**/*'
   artifacts:
     paths:
       - public
 ```
+
+## Apply sed commands to markdown or HTML
+
+The `--sed-md` and `--sed-html` flags allow you to apply `sed` commands to the markdown source or the resulting HTML output, respectively. These commands can be provided as inline strings or as files containing `sed` scripts. If the flags are used multiple times, the commands are combined into a single `sed` engine.
+
+### Example: Modify markdown source
+
+To replace all occurrences of `TODO` with `DONE` in the markdown source before conversion:
+
+```shell
+> gm --sed-md "s/TODO/DONE/g" file.md
+```
+
+### Example: Modify HTML output
+
+To modify the resulting HTML code classes by replacing `language-` with `language `:
+
+```shell
+> gm --sed-html "s/class=\"language-/class=\"language /g" file.md
+```
+
+You can also use a file containing `sed` commands:
+
+```shell
+> gm --sed-html sed_commands.txt file.md
+```
+
+In this case, `sed_commands.txt` should contain the `sed` commands to be applied.

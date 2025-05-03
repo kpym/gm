@@ -27,15 +27,30 @@ func buildMd(infile string) {
 		input = os.Stdin
 		dir = "."
 	}
-	// read the input
+
+	// Wrap the input with sedMdEngine if available
+	if sedMdEngine != nil {
+		input = sedMdEngine.Wrap(input)
+	}
+
+	// Read the input
 	markdown, err := io.ReadAll(input)
 	check(err, "Problem reading the markdown.")
 
-	//compile the input
+	// compile the input
 	html, err := compile(markdown)
 	check(err, "Problem compiling the markdown.")
 	if localmdlinks {
 		html = replaceLinks(html, dir)
+	}
+
+	// Apply sed-html engine if available
+	if sedHtmlEngine != nil {
+		htmlReader := sedHtmlEngine.Wrap(strings.NewReader(string(html)))
+		html, err = io.ReadAll(htmlReader)
+		if err != nil {
+			check(err, "Problem applying sed-html commands.")
+		}
 	}
 
 	// output the result

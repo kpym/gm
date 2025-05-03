@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"os"
@@ -36,7 +37,7 @@ func serveFiles() {
 	var livejsactive atomic.Bool // is set to true if the last request was for non static content
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// say thet we are alive
+		// say that we are alive
 		exit.Store(false)
 		// by default live.js is active (serving .md or related files)
 		// it is reset to false if the request is for static content later
@@ -64,8 +65,32 @@ func serveFiles() {
 				}
 				return
 			}
-			if content, err := os.ReadFile(filename); err == nil {
-				if html, err := compile(content); err == nil {
+			if inFile, err := os.Open(filename); err == nil {
+				defer inFile.Close()
+
+				// convert the file to io.Reader
+				var content io.Reader = inFile
+
+				// Wrap the input with sedMdEngine if available
+				if sedMdEngine != nil {
+					content = sedMdEngine.Wrap(content)
+				}
+
+				markdown, err := io.ReadAll(content)
+				if err != nil {
+					check(err, "Problem reading the markdown.")
+				}
+
+				if html, err := compile(markdown); err == nil {
+					// Wrap the HTML output with sedHtmlEngine if available
+					if sedHtmlEngine != nil {
+						htmlReader := sedHtmlEngine.Wrap(strings.NewReader(string(html)))
+						html, err = io.ReadAll(htmlReader)
+						if err != nil {
+							check(err, "Problem applying sed-html commands.")
+						}
+					}
+
 					info(" serve converted .md file.")
 					w.Write(html)
 					return
