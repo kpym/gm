@@ -33,13 +33,12 @@ gm (version: --): a goldmark cli tool which is a thin wrapper around github.com/
   - the pattern can contain '*', '?', the '**' glob pattern, '[class]' and {alt1,...} alternatives.
 
   When serving (with '--serve' or '-s' option):
-  - the .md files are converted and served as html with live.js (for live 
-updates);
+  - the .md files are converted and served as html with live.js (for live updates);
   - all other files are staticly served;
   - nothing is written on the disk.
 
   -s, --serve                    Start serving local .md file(s). No html is saved.
-      --timeout int              Timeout in seconds for stop serving if no (non static) request. Default is 0 (no timeout).
+      --timeout int              Timeout in seconds for stop serving if no (non static) request. Default is 0 (no timeout).       
   -c, --css stringArray          A css content or url or the theme name present in github.com/kpym/markdown-css. Multiple values are allowed. (default [github])
   -t, --title string             The page title. If empty, search for <h1> in the resulting html.
       --icon string              The favicon url.
@@ -47,8 +46,8 @@ updates);
   -o, --out-dir string           The build output folder (created if not already existing, not used when serving).
       --readme-index             Compile README.md to index.html (not used when serving).
       --move-no-md               Move all non markdown non dot files to the output folder (not used when serving).
-      --skip-dot                 Skip dot files (not used when serving).  
-      --pages                    Shortcut for --outdir='public' --readme-index --move-no-md --skip-dot (not used when serving).
+      --skip-dot                 Skip dot files (not used when serving).
+      --pages                    Shortcut for --outdir='public' --readme-index --move-no-md --skip-dot (not used when serving).   
       --links-md2html            Replace .md with .html in links to local files (not used when serving). (default true)
       --gm-attribute             goldmark option: allows to define attributes on some elements. (default true)
       --gm-auto-heading-id       goldmark option: enables auto heading ids. (default true)
@@ -58,7 +57,7 @@ updates);
       --gm-strikethrough         goldmark option: enables strike through. (default true)
       --gm-table                 goldmark option: enables tables. (default true)
       --gm-task-list             goldmark option: enables task lists. (default true)
-      --gm-typographer           goldmark option: activate punctuations substitution with typographic entities. (default true)
+      --gm-typographer           goldmark option: activate punctuations substitution with typographic entities. (default true)    
       --gm-emoji                 goldmark option: enables (github) emojis 💪. (default true)
       --gm-unsafe                goldmark option: enables raw html. (default true)
       --gm-hard-wraps            goldmark option: render newlines as <br>.
@@ -66,8 +65,8 @@ updates);
       --gm-highlighting string   goldmark option: the code highlighting theme (empty string to disable).
                                  Check github.com/alecthomas/chroma for theme names. (default "github")
       --gm-line-numbers          goldmark option: enable line numering for code highlighting.
-      --sed-md stringArray       Apply sed file or command on the markdown source before conversion.
-      --sed-html stringArray     Apply sed file or command on the HTML output after conversion.
+      --re-md stringArray        Apply regex substitution on the markdown source before conversion.
+      --re-html stringArray      Apply regex substitution on the HTML output after conversion.
   -q, --quiet                    No errors and no info is printed. Return error code is still available.
   -h, --help                     Print this help message.
 ```

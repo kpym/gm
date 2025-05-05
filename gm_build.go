@@ -28,14 +28,14 @@ func buildMd(infile string) {
 		dir = "."
 	}
 
-	// Wrap the input with sedMdEngine if available
-	if sedMdEngine != nil {
-		input = sedMdEngine.Wrap(input)
-	}
-
 	// Read the input
 	markdown, err := io.ReadAll(input)
 	check(err, "Problem reading the markdown.")
+
+	// Apply re-md rules if available
+	if len(reMdRules) > 0 {
+		markdown = reMdRules.Apply(markdown)
+	}
 
 	// compile the input
 	html, err := compile(markdown)
@@ -44,13 +44,9 @@ func buildMd(infile string) {
 		html = replaceLinks(html, dir)
 	}
 
-	// Apply sed-html engine if available
-	if sedHtmlEngine != nil {
-		htmlReader := sedHtmlEngine.Wrap(strings.NewReader(string(html)))
-		html, err = io.ReadAll(htmlReader)
-		if err != nil {
-			check(err, "Problem applying sed-html commands.")
-		}
+	// Apply re-html rules if available
+	if len(reHtmlRules) > 0 {
+		html = reHtmlRules.Apply(html)
 	}
 
 	// output the result

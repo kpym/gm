@@ -67,37 +67,61 @@ Here is an example of possible `.gitlab-ci.yml`:
 pages:
   image: alpine
   script:
-    - wget -c https://github.com/kpym/gm/releases/download/v0.23.0/gm_0.23.0_Linux_intel64.tar.gz -O - | tar -C /usr/local/bin -xz gm
+    - wget -c https://github.com/kpym/gm/releases/download/v0.24.0/gm_0.24.0_Linux_intel64.tar.gz -O - | tar -C /usr/local/bin -xz gm
     - gm --pages '**/*'
   artifacts:
     paths:
       - public
 ```
 
-## Apply sed commands to markdown or HTML
+## Apply regex substitutions to markdown or HTML
 
-The `--sed-md` and `--sed-html` flags allow you to apply `sed` commands to the markdown source or the resulting HTML output, respectively. These commands can be provided as inline strings or as files containing `sed` scripts. If the flags are used multiple times, the commands are combined into a single `sed` engine.
+The `--re-md` and `--re-html` flags allow you to apply regex substitutions to the markdown source or the resulting HTML output, respectively. These substitutions can be provided as inline strings or as files containing regex rules (one rule per line). These flags can be used multiple times to apply multiple substitutions.
 
-### Example: Modify markdown source
+The replace rules are specified in the format 
+```
+  <delimiter><pattern><delimiter><replacement>[<delimiter>[<comment>]]
+```
+The delimiters can be any character, but `/` is commonly used. The pattern is a regular expression, and the replacement is the string to replace the matched pattern with. The optional comment can be used to document the rule. For example, the rule `/foo/bar/` replaces all occurrences of `foo` with `bar`. 
+
+### Modify markdown source
 
 To replace all occurrences of `TODO` with `DONE` in the markdown source before conversion:
 
 ```shell
-> gm --sed-md "s/TODO/DONE/g" file.md
+> gm --re-md "/TODO/DONE/" file.md
 ```
 
-### Example: Modify HTML output
+### Modify HTML output
 
-To modify the resulting HTML code classes by replacing `language-` with `language `:
+To modify the resulting HTML code classes by removing `language-` prefix from the class tag:
 
 ```shell
-> gm --sed-html "s/class=\"language-/class=\"language /g" file.md
+> gm --re-html "/class=\"language-/class=\"/" file.md
 ```
 
-You can also use a file containing `sed` commands:
+### Combining regex rules
+
+You can specify multiple rules by using the flag multiple times:
 
 ```shell
-> gm --sed-html sed_commands.txt file.md
+> gm --re-html "/class=\"language-/class=\"/" --re-html "/foo/bar/" file.md
 ```
 
-In this case, `sed_commands.txt` should contain the `sed` commands to be applied.
+You can also use a file containing lines of regex rules:
+
+```shell
+> gm --re-html replace_rules.txt file.md
+```
+
+Where `replace_rules.txt` contains for example:
+```
+/class="language-/class="/
+/foo/bar/
+```
+
+And you can combine both inline and file rules:
+
+```shell
+> gm --re-md "|TODO|DONE|" --re-html replace_rules.txt --re-html ";bad;good;" file.md
+```

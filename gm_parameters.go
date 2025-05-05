@@ -104,9 +104,9 @@ var (
 	showhelp bool
 	info     func(string, ...interface{})
 
-	// sed flags
-	sedMd   []string
-	sedHtml []string
+	// regex flags
+	reMd   []string
+	reHtml []string
 )
 
 // SetParameters configure the global variables from the command line flags.
@@ -145,8 +145,8 @@ func SetParameters() {
 	pflag.StringVar(&chromatheme, "gm-highlighting", "github", "goldmark option: the code highlighting theme (empty string to disable).\nCheck github.com/alecthomas/chroma for theme names.")
 	pflag.BoolVar(&chromalines, "gm-line-numbers", false, "goldmark option: enable line numering for code highlighting.")
 
-	pflag.StringArrayVar(&sedMd, "sed-md", []string{}, "Apply sed file or command on the markdown source before conversion.")
-	pflag.StringArrayVar(&sedHtml, "sed-html", []string{}, "Apply sed file or command on the HTML output after conversion.")
+	pflag.StringArrayVar(&reMd, "re-md", []string{}, "Apply regex substitution on the markdown source before conversion.")
+	pflag.StringArrayVar(&reHtml, "re-html", []string{}, "Apply regex substitution on the HTML output after conversion.")
 
 	pflag.BoolVarP(&quiet, "quiet", "q", false, "No errors and no info is printed. Return error code is still available.")
 	pflag.BoolVarP(&showhelp, "help", "h", false, "Print this help message.")
@@ -199,12 +199,14 @@ func SetParameters() {
 		skipdot = true
 	}
 
-	// Initialize sed engines
-	if err := addSedCommands(&sedMdEngine, sedMd); err != nil {
-		check(err, "Failed to initialize sed-md engine.")
+	// Initialize regex rules
+	reMdRules, err = DecodeRules(strings.Join(reMd, "\n"))
+	if err != nil {
+		check(err, "Failed to initialize re-md rules.")
 	}
-	if err := addSedCommands(&sedHtmlEngine, sedHtml); err != nil {
-		check(err, "Failed to initialize sed-html engine.")
+	reHtmlRules, err = DecodeRules(strings.Join(reHtml, "\n"))
+	if err != nil {
+		check(err, "Failed to initialize re-html rules.")
 	}
 
 	if serve {

@@ -65,30 +65,23 @@ func serveFiles() {
 				}
 				return
 			}
-			if inFile, err := os.Open(filename); err == nil {
-				defer inFile.Close()
-
-				// convert the file to io.Reader
-				var content io.Reader = inFile
-
-				// Wrap the input with sedMdEngine if available
-				if sedMdEngine != nil {
-					content = sedMdEngine.Wrap(content)
-				}
+			if content, err := os.Open(filename); err == nil {
+				defer content.Close()
 
 				markdown, err := io.ReadAll(content)
 				if err != nil {
 					check(err, "Problem reading the markdown.")
 				}
 
+				// Apply re-md rules if available
+				if len(reMdRules) > 0 {
+					markdown = reMdRules.Apply(markdown)
+				}
+
 				if html, err := compile(markdown); err == nil {
-					// Wrap the HTML output with sedHtmlEngine if available
-					if sedHtmlEngine != nil {
-						htmlReader := sedHtmlEngine.Wrap(strings.NewReader(string(html)))
-						html, err = io.ReadAll(htmlReader)
-						if err != nil {
-							check(err, "Problem applying sed-html commands.")
-						}
+					// Apply re-html rules if available
+					if len(reHtmlRules) > 0 {
+						html = reHtmlRules.Apply(html)
 					}
 
 					info(" serve converted .md file.")
