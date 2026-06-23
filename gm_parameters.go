@@ -54,6 +54,7 @@ var (
 
 	// build flags
 	outdir     string
+	hasoutdir  bool
 	inpatterns []string
 	readme     bool
 	move       bool
@@ -107,6 +108,11 @@ var (
 	// regex flags
 	reMd   []string
 	reHtml []string
+)
+
+// More global variables
+var (
+	cwd string // current working directory
 )
 
 // SetParameters configure the global variables from the command line flags.
@@ -198,6 +204,15 @@ func SetParameters() {
 		move = true
 		skipdot = true
 	}
+	// get the current directory
+	cwd, err = os.Getwd()
+	check(err, "Problem getting the current directory.")
+	// normalize the output directory and set movefiles and outstart
+	outdir, err = filepath.Abs(outdir)
+	check(err, "Problem getting the absolute path of the output directory.")
+	outdir, err = filepath.Rel(cwd, outdir)
+	check(err, "Problem getting the relative path of the output directory.")
+	hasoutdir = outdir != "."
 
 	// Initialize regex rules
 	reMdRules, err = DecodeRules(strings.Join(reMd, "\n"))
