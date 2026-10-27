@@ -47,7 +47,7 @@ func serveFiles() {
 		newMethodPath := fmt.Sprintf("\n%s '%s':", r.Method, r.URL.Path)
 		if newMethodPath != lastMethodPath {
 			lastMethodPath = newMethodPath
-			info(newMethodPath)
+			info("%s", newMethodPath)
 		}
 		// serve the file
 		if strings.HasSuffix(filename, ".html") {
